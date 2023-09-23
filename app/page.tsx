@@ -1,169 +1,105 @@
-"use client"
-import {ChangeEvent, useEffect, useState} from "react";
-import {Input} from "@/components/input";
-
+"use client";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Input } from "@/components/input";
+import clsx from "clsx";
 
 interface OptionsProps {
-    option: string
-    pros: { description: string; punt: string }[];
-    cons: { description: string; punt: string }[];
+  option: string;
+  pros: { description: string; punt: string }[];
+  cons: { description: string; punt: string }[];
 }
 
 interface formDataProps {
-    decision: string;
-    options: OptionsProps[];
+  decision: string;
+  options: OptionsProps[];
 }
 
 const initialOptionsNumber = (count: number): OptionsProps[] => {
-    const initialOptions: OptionsProps[] = [];
-    for (let i = 0; i < count; i++) {
-        initialOptions.push({
-            option: '',
-            pros: Array(3).fill({description: '', punt: ''}),
-            cons: Array(3).fill({description: '', punt: ''}),
-        });
-    }
-    return initialOptions;
-}
+  const initialOptions: OptionsProps[] = [];
+  for (let i = 0; i < count; i++) {
+    initialOptions.push({
+      option: "",
+      pros: Array(3).fill({ description: "", punt: "" }),
+      cons: Array(3).fill({ description: "", punt: "" }),
+    });
+  }
+  return initialOptions;
+};
 
 export default function Home() {
-    const initialOptions = initialOptionsNumber(3)
-    const [formData, setFormData] = useState<formDataProps>({
-        decision: '',
-        options: initialOptions
-    })
+  const initialOptions = initialOptionsNumber(3);
+  const [currentStep, setCurrentSte] = useState<number>(1);
+  const [decision, setDecision] = useState<string>("");
+  const [options, setOptions] = useState<OptionsProps[]>(initialOptions);
 
-    const handleChange = (
-        e: ChangeEvent<HTMLInputElement>,
-        optionIndex: number,
-        lineIndex?: number,
-        type?: string
-    ) => {
-        const {value, name} = e.target
-        console.log(optionIndex, name, value, type)
-        let copyArrOptions = formData.options.map((option, index) => {
-            if (optionIndex === index) {
-                return {
-                    ...option,
-                    cons: option.cons.map((consElement, consIdx) => {
-                        if (type === "cons" && lineIndex === consIdx) {
-                            return {
-                                ...consElement, [name]: value
-                            }
-                        }
-                        return consElement
-                    }),
-                    pros: option.pros.map((proElement, proIdx) => {
-                        if (type === "pros" && lineIndex === proIdx) {
-                            return {
-                                ...proElement, [name]: value
-                            }
-                        }
-                        return proElement
-                    }),
-                }
-            }
-            return option
-        })
-        if (name === "option") {
-            copyArrOptions[optionIndex].option = value;
-        }
-        setFormData({...formData, options: copyArrOptions})
-    };
+  const handleAddOption = (e: any) => {
+    if (e.key === "Enter") {
+      setCurrentSte(2);
+    }
+  };
+  return (
+    <div className={"max-w-4xl mx-auto py-24"}>
+      <div className="max-w-lg mx-auto mb-8 flex items-center justify-between">
+        {new Array(4).fill(0).map((item, idx) => {
+          return (
+            <button
+             onClick={() => setCurrentSte(idx + 1)}
+              key={idx}
+              className={clsx(
+                "w-10 h-10 py-1.5 rounded-full border-2 text-center",
+                idx + 1 <= currentStep
+                  ? "border-white text-white"
+                  : "border-gray-700 text-gray-700"
+              )}
+            >
+              {idx + 1}
+            </button>
+          );
+        })}
+      </div>
 
-    /*      const handleAddOption = (e: any) => {
-              e.preventDefault()
-              const addOption = {option: '', pros: [], cons: []}
-              setFormData({
-                  ...formData,
-                  options: [...formData.options, addOption],
-              });
-          };*/
-
-    useEffect(() => {
-        console.log(formData)
-    }, [formData]);
-
-
-    return (
-        <div className={' max-w-4xl mx-auto py-24 text-6xl'}>
-
-            <form>
-                <Input
-                    classname={"w-full py-4 border-0 border-b-2 bg-transparent text-3xl"}
-                    value={formData.decision}
-                    label={"¿Qué decisión quieres tomar?"} type={"text"} name={"decision"}
-                    placeholder={"Comprar un coche"}
-                    onChange={(e) => setFormData({...formData, decision: e.target.value})}/>
-
-                {formData.decision !== "" &&
-                    <div>
-                        {/*<div className={"float-right cursor-pointer"} onClick={(e)=> handleAddOption(e)}>+</div>*/}
-                        <label>¿Qué opciones tienes?</label>
-                        {formData.options.map((option: OptionsProps, idx: number) => {
-                            return <Input
-                                classname={"w-full py-4 border-0 border-b-2 bg-transparent text-3xl"}
-                                type={"text"}
-                                name={"option"}
-                                placeholder={`Opción ${idx + 1}`}
-                                onChange={(e) => handleChange(e, idx)}/>
-                        })}
-                    </div>}
-                <div>
-                    {formData.options.map((option, idx) => {
-                        return option.option !== "" && (
-                            <>
-                                <h5 className={"pb-2"}>{option.option}</h5>
-                                <div className={"flex flex-row"}>
-
-                                    <div>
-                                        <label>Pros:</label>
-                                        {option.pros.map((pro, i) => {
-                                            return (
-                                                <div className={"flex flex-row"}>
-                                                    <Input
-                                                        classname={"w-full py-4 border-0 border-b-2 bg-transparent text-3xl"}
-                                                        type={"text"} name={"description"} placeholder={`pro ${i + 1}`}
-                                                        onChange={(e) => handleChange(e, idx, i, "pros")}/>
-                                    {/*                <Input
-                                                        classname={"w-full py-4 border-0 border-b-2 bg-transparent text-3xl"}
-                                                        type={"text"} name={"pros-val"}
-                                                        placeholder={`puntuacion ${i + 1}`}
-                                                        onChange={(e) => handleChange(e, idx, i)}/>*/}
-                                                </div>)
-                                        })}
-                                    </div>
-                                    <div>
-                                        <label>Contras:</label>
-                                        {option.cons.map((pro, i) => {
-                                            return (
-                                                <div className={"flex flex-row"}>
-                                                    <Input
-                                                        classname={"w-full py-4 mx-2 border-0 border-b-2 bg-transparent text-3xl"}
-                                                        type={"text"} name={"description"} placeholder={`cons ${i + 1}`}
-                                                        onChange={(e) => handleChange(e, idx, i, "cons")}/>
-                                           {/*         <Input
-                                                        classname={"w-full py-4 border-0 border-b-2 bg-transparent text-3xl"}
-                                                        type={"text"} name={"const-val"}
-                                                        placeholder={`puntuacion ${i + 1}`}
-                                                        onChange={(e) => handleChange(e, idx, i)}/>*/}
-                                                </div>)
-                                        })}
-                                    </div>
-                                </div>
-                            </>
-
-                        )
-                    })}
-                </div>
-                {/*<div className={"flex flex-col justify-center items-center"}>
-                    <button
-                        className={"text-xl border-0 p-4 rounded-lg bg-amber-400 text-black hover:bg-amber-600 transition"}
-                        onClick={(e) => handleAddOption(e)}>Añadir
-                        opciones
-                    </button>
-                </div>*/}
-            </form>
+      <div className="max-w-2xl mx-auto">
+        <label htmlFor="decision" className="text-4xl">
+          ¿Qué decisión quieres tomar?
+        </label>
+        <div className="flex items-center justify-between border-b-2 border-white mb-1">
+          <input
+            disabled={currentStep > 1}
+            type="text"
+            id="decision"
+            name="decision"
+            placeholder="Por ejemplo...Comprar un coche"
+            onChange={(e) => setDecision(e.target.value)}
+            onKeyDown={(e) => handleAddOption(e)}
+            className={clsx("py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none",
+                currentStep > 1 ? "text-green-300" : "text-white"
+            )}
+          />
+          <button onClick={() => setCurrentSte(2)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className={clsx(
+                "icon icon-tabler icon-tabler-circle-check hover:scale-110 transition ",
+                currentStep > 1 ? "stroke-green-300" : "stroke-white"
+              )}
+              width="44"
+              height="44"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+              <path d="M9 12l2 2l4 -4" />
+            </svg>
+          </button>
         </div>
-    )
+        <span className="italic text-sm">
+          Cuando termines y quieras pasar al siguiente paso, pulsa el check o
+          presiona 'Enter'
+        </span>
+      </div>
+    </div>
+  );
 }
