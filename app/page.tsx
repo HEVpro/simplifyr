@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import clsx from "clsx";
 import Decision from "../components/Decision";
 
@@ -74,14 +74,15 @@ export default function Home() {
           <label htmlFor="decision" className="text-4xl">
             ¿Qué opciones tienes?
           </label>
-          <div className="flex items-center justify-between border-b-2 border-white mb-1">
+          <div className={clsx("flex items-center justify-between border-b-2  mb-1",
+          options.length == 3 ? "border-gray-600" : "border-white")}>
             {/* TODO: ADD STYLE WHEN DISABLED */}
             <input
               disabled={options.length >= 3}
               type="text"
               id="decision"
               name="decision"
-              placeholder="Por ejemplo...Renault megane"
+              placeholder={options.length == 3 ? "Máximo 3 opciones" : "Por ejemplo...Renault megane"}
               value={currentOption}
               onChange={(e) => setCurrentOption(e.target.value)}
               onKeyDown={(e) => handleAddOption(e)}
@@ -110,14 +111,15 @@ export default function Home() {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className={clsx(
-                  "icon icon-tabler icon-tabler-circle-plus stroke-white"
+                  "icon icon-tabler icon-tabler-circle-plus ",
+                  options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white"
                 )}
                 width="44"
                 height="44"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
@@ -146,9 +148,9 @@ export default function Home() {
                         "icon icon-tabler icon-tabler-circle-plus stroke-red-500 w-7 h-7 fill-gray-700"
                       )}
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
                       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                       <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
