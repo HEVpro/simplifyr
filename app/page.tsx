@@ -31,11 +31,15 @@ export default function Home() {
   const [currentStep, setCurrentSte] = useState(1);
   const [currentOption, setCurrentOption] = useState("");
   const [options, setOptions] = useState<OptionsProps[]>([]);
+  const [errorMessage, setErrorMessage] = useState(false)
 
   const handleAddOption = (e: any) => {
     if (e.key === "Enter") {
       addOption();
       // TODO: ADD ERROR MESSAGE MAX 3 OPTIONS
+      if (options.length == 3) {
+        showMessageError()
+      }
     }
   };
   function addOption() {
@@ -47,6 +51,12 @@ export default function Home() {
       setCurrentOption("");
     }
   }
+  const showMessageError = ()=> {
+    setErrorMessage(true)
+    setCurrentOption("")
+    setTimeout(()=> setErrorMessage(false), 2000)
+  }
+
 
   return (
     <div className={"max-w-4xl mx-auto py-24"}>
@@ -74,11 +84,11 @@ export default function Home() {
           <label htmlFor="decision" className="text-4xl">
             ¿Qué opciones tienes?
           </label>
-          <div className={clsx("flex items-center justify-between border-b-2  mb-1",
-          options.length == 3 ? "border-gray-600" : "border-white")}>
-            {/* TODO: ADD STYLE WHEN DISABLED */}
+          <div className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
+          options.length == 3 ? "border-gray-600" : "border-white",
+              errorMessage ? "border-b-red-600" : "")}>
             <input
-              disabled={options.length >= 3}
+
               type="text"
               id="decision"
               name="decision"
@@ -87,7 +97,8 @@ export default function Home() {
               onChange={(e) => setCurrentOption(e.target.value)}
               onKeyDown={(e) => handleAddOption(e)}
               className={clsx(
-                "py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white"
+                "py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white transition-colors duration-300",
+                  errorMessage ? "text-red-600" : ""
               )}
             />
             {/* <svg
@@ -107,12 +118,13 @@ export default function Home() {
               <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
               <path d="M9 12l2 2l4 -4" />
             </svg> */}
-            <button onClick={() => addOption()}>
+            <button onClick={options.length == 3 ? () => showMessageError() : () => addOption()}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className={clsx(
-                  "icon icon-tabler icon-tabler-circle-plus ",
-                  options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white"
+                  "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
+                  options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white",
+                    errorMessage ? "stroke-red-600" : ""
                 )}
                 width="44"
                 height="44"
