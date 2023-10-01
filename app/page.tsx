@@ -31,11 +31,15 @@ export default function Home() {
   const [currentStep, setCurrentSte] = useState(1);
   const [currentOption, setCurrentOption] = useState("");
   const [options, setOptions] = useState<OptionsProps[]>([]);
+  const [errorMessage, setErrorMessage] = useState(false)
 
   const handleAddOption = (e: any) => {
     if (e.key === "Enter") {
       addOption();
       // TODO: ADD ERROR MESSAGE MAX 3 OPTIONS
+      if (options.length == 3) {
+        showMessageError()
+      }
     }
   };
   function addOption() {
@@ -47,6 +51,12 @@ export default function Home() {
       setCurrentOption("");
     }
   }
+  const showMessageError = ()=> {
+    setErrorMessage(true)
+    setCurrentOption("")
+    setTimeout(()=> setErrorMessage(false), 3000)
+  }
+
 
   return (
     <div className={"max-w-4xl mx-auto py-24"}>
@@ -74,22 +84,23 @@ export default function Home() {
           <label htmlFor="decision" className="text-4xl">
             ¿Qué opciones tienes?
           </label>
-          <div className={clsx("flex items-center justify-between border-b-2  mb-1",
-          options.length == 3 ? "border-gray-600" : "border-white")}>
-            {/* TODO: ADD STYLE WHEN DISABLED */}
+          <div className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
+          options.length == 3 ? "border-gray-600" : "border-white",
+              errorMessage ? "border-b-red-500" : "")}>
             <input
-              disabled={options.length >= 3}
               type="text"
               id="decision"
               name="decision"
-              placeholder={options.length >= 3 ? "Has alcanzado el límite de opciones" : "Por ejemplo...Renault megane"}
+              placeholder={"Por ejemplo...Renault megane"}
               value={currentOption}
               onChange={(e) => setCurrentOption(e.target.value)}
               onKeyDown={(e) => handleAddOption(e)}
               className={clsx(
-                "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white"
+                "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white transition-colors duration-300",
+                  errorMessage ? "text-red-600" : ""
               )}
             />
+
             {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               className={clsx(
@@ -107,12 +118,13 @@ export default function Home() {
               <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
               <path d="M9 12l2 2l4 -4" />
             </svg> */}
-            <button onClick={() => addOption()}>
+            <button onClick={options.length == 3 ? () => showMessageError() : () => addOption()}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className={clsx(
-                  "icon icon-tabler icon-tabler-circle-plus ",
-                  options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white"
+                  "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
+                  options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white",
+                    errorMessage ? "stroke-red-500" : ""
                 )}
                 width="44"
                 height="44"
@@ -128,6 +140,11 @@ export default function Home() {
               </svg>
             </button>
           </div>
+          {errorMessage && (
+              <span className="italic text-sm text-red-500">
+                  Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero
+              </span>
+          )}
           <div className="mt-4 flex flex-col gap-y-2">
             {options.map((option, idx) => {
               return (
