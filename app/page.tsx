@@ -92,12 +92,12 @@ export default function Home() {
               type="text"
               id="decision"
               name="decision"
-              placeholder={options.length == 3 ? "Máximo 3 opciones" : "Por ejemplo...Renault megane"}
+              placeholder={options.length >= 3 ? "Has alcanzado el límite de opciones" : "Por ejemplo...Renault megane"}
               value={currentOption}
               onChange={(e) => setCurrentOption(e.target.value)}
               onKeyDown={(e) => handleAddOption(e)}
               className={clsx(
-                "py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white transition-colors duration-300",
+                "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white transition-colors duration-300",
                   errorMessage ? "text-red-600" : ""
               )}
             />
