@@ -54,7 +54,7 @@ export default function Home() {
   const showMessageError = ()=> {
     setErrorMessage(true)
     setCurrentOption("")
-    setTimeout(()=> setErrorMessage(false), 2000)
+    setTimeout(()=> setErrorMessage(false), 3000)
   }
 
 
@@ -86,13 +86,12 @@ export default function Home() {
           </label>
           <div className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
           options.length == 3 ? "border-gray-600" : "border-white",
-              errorMessage ? "border-b-red-600" : "")}>
+              errorMessage ? "border-b-red-500" : "")}>
             <input
-
               type="text"
               id="decision"
               name="decision"
-              placeholder={options.length >= 3 ? "Has alcanzado el límite de opciones" : "Por ejemplo...Renault megane"}
+              placeholder={"Por ejemplo...Renault megane"}
               value={currentOption}
               onChange={(e) => setCurrentOption(e.target.value)}
               onKeyDown={(e) => handleAddOption(e)}
@@ -101,6 +100,7 @@ export default function Home() {
                   errorMessage ? "text-red-600" : ""
               )}
             />
+
             {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               className={clsx(
@@ -124,7 +124,7 @@ export default function Home() {
                 className={clsx(
                   "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
                   options.length == 3 ? "stroke-gray-600 cursor-default":"stroke-white",
-                    errorMessage ? "stroke-red-600" : ""
+                    errorMessage ? "stroke-red-500" : ""
                 )}
                 width="44"
                 height="44"
@@ -140,6 +140,11 @@ export default function Home() {
               </svg>
             </button>
           </div>
+          {errorMessage && (
+              <span className="italic text-sm text-red-500">
+                  Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero
+              </span>
+          )}
           <div className="mt-4 flex flex-col gap-y-2">
             {options.map((option, idx) => {
               return (
