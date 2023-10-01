@@ -3,14 +3,14 @@ import { useState } from "react";
 
 type DecisionProps = {
   currentStep: number;
-  setCurrentSte: (value: number) => void;
+  setCurrentStep: (value: number) => void;
 };
-const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
+const Decision = ({ currentStep, setCurrentStep }: DecisionProps) => {
   const [decision, setDecision] = useState("");
 
   const handleDecision = (e: any) => {
     if (e.key === "Enter") {
-      setCurrentSte(2);
+      setCurrentStep(2);
     }
   };
 
@@ -34,12 +34,12 @@ const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
             currentStep > 1 ? "text-green-300" : "text-white"
           )}
         />
-        <button onClick={() => setCurrentSte(2)}>
+        <button onClick={() => setCurrentStep(2)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={clsx(
-              "icon icon-tabler icon-tabler-circle-check hover:scale-110 transition ",
-              currentStep > 1 ? "stroke-green-300" : "stroke-white"
+              "icon icon-tabler icon-tabler-circle-check  transition ",
+              currentStep > 1 ? "stroke-green-300 cursor-default " : "hover:scale-110 stroke-white"
             )}
             width="44"
             height="44"
