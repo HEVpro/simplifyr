@@ -2,11 +2,12 @@ import clsx from "clsx";
 import { useState } from "react";
 import {Message} from "@/components/Message";
 
-type DecisionProps = {
+export interface StepChildrenProps {
   currentStep: number;
   setCurrentStep: (value: number) => void;
 };
-const Decision = ({ currentStep, setCurrentStep }: DecisionProps) => {
+
+const Decision = ({ currentStep, setCurrentStep }: StepChildrenProps) => {
   const [decision, setDecision] = useState("");
 
   const handleDecision = (e: any) => {
