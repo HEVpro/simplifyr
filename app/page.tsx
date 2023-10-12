@@ -28,7 +28,7 @@ export default function Home() {
     const [currentStep, setCurrentStep] = useState(1);
     const [currentOption, setCurrentOption] = useState("");
     const [options, setOptions] = useState<OptionsProps[]>([]);
-    const [errorMessage, setErrorMessage] = useState(false)
+    const [errorMessage, setErrorMessage] = useState(0)
     const [selectedOption, setSelectedOption] = useState(0);
     const [showSection, setShowSection] = useState(1);
     const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", punt: ""});
@@ -50,16 +50,16 @@ export default function Home() {
             setCurrentOption("");
             setCurrentStep(3);
         } else {
-            showMessageError();
+            showMessageError(1);
             setCurrentOption("");
             setCurrentStep(3);
         }
     }
 
-    const showMessageError = () => {
-        setErrorMessage(true)
+    const showMessageError = (type:number) => {
+        setErrorMessage(type)
         setCurrentOption("")
-        setTimeout(() => setErrorMessage(false), 3000)
+        setTimeout(() => setErrorMessage(0), 3000)
     }
 
     const handleTabInput = (e: any, type: "pros" | "cons") => {
@@ -89,12 +89,10 @@ export default function Home() {
                 });
                 setCurrentReason({description: "", punt: ""});
             } else {
-                /*TODO: añadir mensaje de error y quitar console.log*/
-                console.log("Faltan campos por rellenar")
+                showMessageError(2);
             }
         } else {
-            /*TODO: añadir mensaje de error y quitar console.log*/
-            console.log(`Has alcanzado el numero maximo de ${type}`)
+            type === "pros" ? showMessageError(3) :  showMessageError(4);
         }
     };
 
@@ -128,7 +126,7 @@ export default function Home() {
                     <div
                         className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
                             options.length == 3 ? "border-gray-600" : "border-white",
-                            errorMessage ? "border-b-red-500" : "")}>
+                            errorMessage === 1 ? "border-b-red-500" : "")}>
                         {/* TODO: ADD STYLE WHEN DISABLED */}
                         <input
                             disabled={currentStep > 2}
@@ -141,7 +139,7 @@ export default function Home() {
                             onKeyDown={(e) => handleAddOption(e)}
                             className={clsx(
                                 "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white",
-                                errorMessage ? "text-red-600" : ""
+                                errorMessage === 1 ? "text-red-600" : ""
                             )}
                         />
                         <button onClick={() => addOption()}>
@@ -154,12 +152,12 @@ export default function Home() {
                                     className={clsx(
                                         "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
                                         options.length == 3 ? "stroke-gray-600 cursor-default" : "stroke-white",
-                                        errorMessage ? "stroke-red-500" : "")}
+                                        errorMessage === 1 ? "stroke-red-500" : "")}
                                 />
                             )}
                         </button>
                     </div>
-                    {errorMessage && (
+                    {errorMessage === 1 && (
                         <Message
                             message={"Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero"}
                             className="text-red-500"/>
@@ -218,7 +216,8 @@ export default function Home() {
                                 {showSection === 1 && (
                                     <div className={"flex flex-col gap-3"}>
                                         <div className={"flex flex-row gap-3"}>
-                                            <div className="w-4/6 border-b-2 border-white mb-1">
+                                            <div className={clsx("w-4/6 border-b-2 border-white mb-1",
+                                                errorMessage > 1 ? "border-b-red-500" : "")}>
                                                 <input
                                                     type="text"
                                                     id="description"
@@ -232,7 +231,8 @@ export default function Home() {
                                                     )}
                                                 />
                                             </div>
-                                            <div className="w-2/6 border-b-2 border-white flex flex-row mb-1">
+                                            <div className={clsx("w-2/6 border-b-2  flex flex-row mb-1",
+                                                errorMessage > 1 ? "border-b-red-500" : "border-white")}>
                                                 <select id="punt"
                                                         name="punt"
                                                         value={currentReason?.punt}
@@ -255,6 +255,12 @@ export default function Home() {
                                                 </button>
                                             </div>
                                         </div>
+                                        {errorMessage === 2 && (
+                                            <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
+                                        )}
+                                        {errorMessage === 3 && (
+                                        <Message message={"Has alcanzado el límite de pros"} className={"text-red-500"}/>
+                                        )}
                                         <div
                                             className={"w-full flex flex-col justify-around gap-2"}>
                                             {options[selectedOption]?.pros.map((pro, i) => {
@@ -293,7 +299,8 @@ export default function Home() {
                                 {showSection === 2 && (
                                     <div className={"flex flex-col gap-3"}>
                                         <div className={"flex flex-row gap-3"}>
-                                            <div className="w-4/6 border-b-2 border-white mb-1">
+                                            <div className={clsx("w-4/6 border-b-2 mb-1",
+                                                errorMessage > 1 ? "border-b-red-500" : "border-white")}>
                                                 <input
                                                     type="text"
                                                     id="description"
@@ -307,7 +314,8 @@ export default function Home() {
                                                     )}
                                                 />
                                             </div>
-                                            <div className="w-2/6 border-b-2 border-white flex flex-row mb-1">
+                                            <div className={clsx("w-2/6 border-b-2 flex flex-row mb-1",
+                                                errorMessage > 1 ? "border-b-red-500" : "border-white")}>
                                                 <select id="punt"
                                                         name="punt"
                                                         value={currentReason?.punt}
@@ -330,6 +338,12 @@ export default function Home() {
                                                 </button>
                                             </div>
                                         </div>
+                                        {errorMessage === 2 && (
+                                            <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
+                                        )}
+
+                                        {errorMessage === 4 && (<Message message={"Has alcanzado el límite de cons"}
+                                                  className={"text-red-500"}/>)}
                                         <div
                                             className={"w-full flex flex-col justify-around"}>
                                             {options[selectedOption]?.cons.map((cons, i) => {
@@ -363,6 +377,7 @@ export default function Home() {
                                         </div>
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     )}
