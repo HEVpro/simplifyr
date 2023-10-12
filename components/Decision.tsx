@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useState } from "react";
+import {Message} from "@/components/Message";
 
 type DecisionProps = {
   currentStep: number;
@@ -54,10 +55,7 @@ const Decision = ({ currentStep, setCurrentStep }: DecisionProps) => {
           </svg>
         </button>
       </div>
-      <span className="italic text-sm">
-        Cuando termines y quieras pasar al siguiente paso, pulsa el check o
-        presiona 'Enter'
-      </span>
+      <Message message={"Cuando termines y quieras pasar al siguiente paso, pulsa el check o presiona 'Enter'"}/>
     </div>
   );
 };
