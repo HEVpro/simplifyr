@@ -2,6 +2,7 @@
 import {ChangeEvent, useEffect, useState} from "react";
 import clsx from "clsx";
 import Decision from "../components/Decision";
+import {CircleArrowRight, CircleCheck, CircleMinus, CirclePlus} from "@/components/Icons";
 
 
 interface ReasonProps {
@@ -144,58 +145,16 @@ export default function Home() {
                         />
                         <button onClick={() => addOption()}>
                             {options.length === 3 && currentStep === 2 ? (
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="icon icon-tabler icon-tabler-circle-arrow-right stroke-white"
-                                    width="44"
-                                    height="44"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18"></path>
-                                    <path d="M16 12l-4 -4"></path>
-                                    <path d="M16 12h-8"></path>
-                                    <path d="M12 16l4 -4"></path>
-                                </svg>
+                                <CircleArrowRight className={"stroke-white"}/>
                             ) : currentStep > 2 ? (
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className={clsx(
-                                        "icon icon-tabler icon-tabler-circle-check cursor-default stroke-green-300"
-                                    )}
-                                    width="44"
-                                    height="44"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                    <path d="M9 12l2 2l4 -4"/>
-                                </svg>
+                                <CircleCheck className={"stroke-green-300"}/>
                             ) : (
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
+                                <CirclePlus
                                     className={clsx(
                                         "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
                                         options.length == 3 ? "stroke-gray-600 cursor-default" : "stroke-white",
-                                        errorMessage ? "stroke-red-500" : ""
-                                    )}
-                                    width="44"
-                                    height="44"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
-                                    <path d="M9 12h6"/>
-                                    <path d="M12 9v6"/>
-                                </svg>
+                                        errorMessage ? "stroke-red-500" : "")}
+                                />
                             )}
                         </button>
                     </div>
@@ -222,20 +181,7 @@ export default function Home() {
                                             });
                                         }}
                                     >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className={clsx(
-                                                "icon icon-tabler icon-tabler-circle-plus stroke-red-500 w-7 h-7 fill-gray-700"
-                                            )}
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                            <path d="M9 12l6 0"/>
-                                        </svg>
+                                        <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
                                     </button>
 
                                 </div>
@@ -293,7 +239,7 @@ export default function Home() {
                                                     "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
                                                     currentReason.punt === "" ? "text-gray-400" : "text-white")}>
                                             <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                            {new Array(10).fill(1,1,10).map((item, idx) => {
+                                            {new Array(10).fill(1, 1, 10).map((item, idx) => {
                                                 return (
                                                     <option value={idx}
                                                             className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
@@ -303,23 +249,7 @@ export default function Home() {
                                             })}
                                         </select>
                                         <button onClick={() => addReason("pros")}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className={clsx(
-                                                    "icon icon-tabler icon-tabler-circle-plus stroke-white"
-                                                )}
-                                                width="44"
-                                                height="44"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
-                                                <path d="M9 12h6"/>
-                                                <path d="M12 9v6"/>
-                                            </svg>
+                                            <CirclePlus className={clsx("stroke-white")}/>
                                         </button>
                                     </div>
                                 </div>
@@ -347,22 +277,9 @@ export default function Home() {
                                                         });
                                                     }}
                                                 >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className={clsx(
-                                                            "icon icon-tabler icon-tabler-circle-plus stroke-red-500 w-7 h-7 fill-gray-700"
-                                                        )}
-                                                        viewBox="0 0 24 24"
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                                        <path d="M9 12l6 0"/>
-                                                    </svg>
+                                                    <CirclePlus
+                                                        className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
                                                 </button>
-
                                             </div>
 
                                         )
@@ -407,23 +324,7 @@ export default function Home() {
                                             })}
                                         </select>
                                         <button onClick={() => addReason("cons")}>
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className={clsx(
-                                                    "icon icon-tabler icon-tabler-circle-plus stroke-white"
-                                                )}
-                                                width="44"
-                                                height="44"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/>
-                                                <path d="M9 12h6"/>
-                                                <path d="M12 9v6"/>
-                                            </svg>
+                                            <CirclePlus className={clsx("stroke-white")}/>
                                         </button>
                                     </div>
                                 </div>
@@ -451,20 +352,7 @@ export default function Home() {
                                                         });
                                                     }}
                                                 >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className={clsx(
-                                                            "icon icon-tabler icon-tabler-circle-plus stroke-red-500 w-7 h-7 fill-gray-700"
-                                                        )}
-                                                        viewBox="0 0 24 24"
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                                        <path d="M9 12l6 0"/>
-                                                    </svg>
+                                                    <CirclePlus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
                                                 </button>
                                             </div>
                                         )
