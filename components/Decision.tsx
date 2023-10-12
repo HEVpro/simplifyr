@@ -20,7 +20,8 @@ const Decision = ({ currentStep, setCurrentStep }: DecisionProps) => {
       <label htmlFor="decision" className="text-4xl">
         ¿Qué decisión quieres tomar?
       </label>
-      <div className="flex items-center justify-between border-b-2 border-white mb-1">
+      <div className={clsx("flex items-center justify-between border-b-2 mb-1",
+          currentStep > 1 ? "border-gray-600" : "border-white",)}>
         <input
           disabled={currentStep > 1}
           type="text"

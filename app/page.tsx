@@ -174,6 +174,7 @@ export default function Home() {
                                             onClick={() => setSelectedOption(idx)}>
                                             <span>{option.label}</span>
                                             <button
+                                                disabled={currentStep > 2}
                                                 onClick={() => {
                                                     setOptions((prev) => {
                                                         const newOptions = [...prev];
