@@ -6,32 +6,35 @@ import {StepChildrenProps} from "@/components/Decision";
 
 interface ReasonProps {
     description: string,
-    punt: string
+    punt: string;
 }
 
 interface OptionsProps {
+    id: number;
     label: string;
-    pros: { description: string; punt: string }[];
-    cons: { description: string; punt: string }[];
+    pros: ReasonProps[];
+    cons: ReasonProps[];
+    average: number
 }
 
 interface ProsAndConsProps extends StepChildrenProps {
     showMessage: boolean;
     options: OptionsProps[];
     setOptions: (value: any) => void;
-    currentOption: string;
-    selectedOption: number;
+    selectedOption?: OptionsProps;
+    setSelectedOption: (value: any) => void;
     showMessageError: (value: number) => void;
     indexMessage: number;
 }
 
-
+let nextId = 0
 export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
     const [options, setOptions] = useState<OptionsProps[]>([]);
-    const [currentOption, setCurrentOption] = useState("");
-    const [selectedOption, setSelectedOption] = useState(0);
+    const [nameOption, setNameOption] = useState("");
+    const [selectedOption, setSelectedOption] = useState<OptionsProps>();
     const [showMessage, setShowMessage] = useState(false)
     const [indexMessage, setIndexMessage] = useState(0)
+
 
     const handleAddOption = (e: any) => {
         if (e.key === "Enter") {
@@ -43,21 +46,21 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
         if (options.length < 3) {
             setOptions((prev) => [
                 ...prev,
-                {label: currentOption, pros: [], cons: []},
+                {id: nextId++, label: nameOption, pros: [], cons: [], average: 0},
             ]);
-            setCurrentOption("");
-        } else if (options.length === 3 && currentOption.length === 0) {
-            setCurrentOption("");
+            setNameOption("");
+        } else if (options.length === 3 && nameOption.length === 0) {
+            setNameOption("");
         } else {
             showMessageError(1);
-            setCurrentOption("");
+            setNameOption("");
         }
     }
 
     const showMessageError = (index: number) => {
         setShowMessage(true)
         setIndexMessage(index)
-        setCurrentOption("")
+        setNameOption("")
         setTimeout(() => setShowMessage(false), 3000)
 
     }
@@ -80,8 +83,8 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                         id="option"
                         name="option"
                         placeholder="Por ejemplo...Renault megane"
-                        value={currentOption}
-                        onChange={(e) => setCurrentOption(e.target.value)}
+                        value={nameOption}
+                        onChange={(e) => setNameOption(e.target.value)}
                         onKeyDown={(e) => handleAddOption(e)}
                         className={clsx(
                             "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white",
@@ -110,18 +113,17 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                     {options.map((option, idx) => {
                         return (
                             <div
+                                key={option.id}
                                 className={clsx("w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between px-2",
                                     currentStep > 2 && "cursor-pointer",
-                                    currentStep > 2 && selectedOption == idx ? " border-2 " : "")}
-                                onClick={() => setSelectedOption(idx)}>
+                                    currentStep > 2 && selectedOption?.id === option.id ? " border-2 " : "")}
+                                onClick={() => setSelectedOption(option)}>
                                 <span>{option.label}</span>
                                 <button
                                     disabled={currentStep > 2}
                                     onClick={() => {
                                         setOptions((prev) => {
-                                            const newOptions = [...prev];
-                                            newOptions.splice(idx, 1);
-                                            return newOptions;
+                                            return prev.filter((element) => (element.id !== option.id));
                                         });
                                     }}
                                 >
@@ -144,10 +146,11 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                     </div>
                 )}
             </div>
-            {currentStep > 2 && <ProsAndCons currentOption={currentOption} options={options} setOptions={setOptions}
+            {currentStep > 2 && <ProsAndCons options={options} setOptions={setOptions}
                                              currentStep={currentStep} setCurrentStep={setCurrentStep}
                                              indexMessage={indexMessage} showMessageError={showMessageError}
-                                             showMessage={showMessage} selectedOption={selectedOption}/>}
+                                             showMessage={showMessage} selectedOption={selectedOption}
+                                             setSelectedOption={setSelectedOption}/>}
         </>
     )
 }
@@ -157,10 +160,10 @@ const ProsAndCons = ({
                          currentStep,
                          setCurrentStep,
                          showMessage,
-                         currentOption,
                          setOptions,
                          options,
                          selectedOption,
+                         setSelectedOption,
                          showMessageError,
                          indexMessage
                      }: ProsAndConsProps) => {
@@ -169,7 +172,6 @@ const ProsAndCons = ({
 
 
     const handleChangeReasons = (e: any) => {
-
         const {value, name} = e.target
         setCurrentReason((prevReason) => ({
             ...prevReason,
@@ -177,36 +179,51 @@ const ProsAndCons = ({
         }))
     }
 
-    const addReason = (type: "pros" | "cons") => {
-        if (options[selectedOption][type].length < 2 && (type === "pros" || type === "cons")) {
-            if (Object.values(currentReason).every((value) => value !== "")) {
-                setOptions((prevOptions: any) => {
-                    const newOptions = [...prevOptions];
-                    const optionSelected = newOptions[selectedOption];
-                    optionSelected[type].push(currentReason);
-                    newOptions[selectedOption] = optionSelected;
-                    return newOptions;
-                });
-                setCurrentReason({description: "", punt: ""});
-            } else {
-                showMessageError(2);
+
+    const addReason = (type: "pros" | "cons", optionId?: number) => {
+        const copyArrOptions = [...options]
+        const newOptions = copyArrOptions.map((option) => {
+            if (option.id === optionId) {
+                if (option[type].length < 2) {
+                    if (Object.values(currentReason).every((value) => value !== "")) {
+                        option[type].push(currentReason)
+                        setCurrentReason({description: "", punt: ""})
+                        calculateAverage(option)
+                        return option
+                    } else {
+                        showMessageError(2);
+                        setCurrentReason({description: "", punt: ""})
+                    }
+                } else {
+                    showMessageError(type === "pros" ? 3 : 4)
+                }
             }
-        } else {
-            type === "pros" ? showMessageError(3) : showMessageError(4);
-        }
-    };
-    const handleTabInput = (e: any, type: "pros" | "cons") => {
-        if (e.key === "Enter") {
-            addReason(type)
-        }
+            return option;
+        });
+        setOptions(newOptions)
     };
 
+    const calculateAverage = (option: OptionsProps) => {
+        let sumCons = 0;
+        let sumPros = 0;
+
+        selectedOption?.pros.forEach((num) => {
+            sumPros += parseFloat(num.punt);
+        });
+
+        selectedOption?.cons.forEach((num) => {
+            sumCons += parseFloat(num.punt);
+        });
+
+        option.average = sumPros + sumCons;
+    };
 
     return (
         <div className="max-w-2xl mx-auto mt-8">
             <div className="flex text-3xl gap-2 justify-around">
                 <button
-                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition", showSection === 1 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
+                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition",
+                        showSection === 1 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
                     onClick={() => {
                         setShowSection(1);
                     }}
@@ -214,7 +231,8 @@ const ProsAndCons = ({
                     Pros
                 </button>
                 <button
-                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition", showSection === 2 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
+                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition",
+                        showSection === 2 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
                     onClick={() => {
                         setShowSection(2)
                     }}
@@ -235,12 +253,12 @@ const ProsAndCons = ({
                                     placeholder="Por ejemplo...Es económico"
                                     value={currentReason?.description}
                                     onChange={(e) => handleChangeReasons(e)}
-                                    onKeyDown={(e) => handleTabInput(e, "pros")}
                                     className={clsx(
                                         "py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white"
                                     )}
                                 />
                             </div>
+
                             <div className={clsx("w-2/6 border-b-2  flex flex-row mb-1",
                                 showMessage && indexMessage >= 2 ? "border-b-red-500" : "border-white")}>
                                 <select id="punt"
@@ -253,14 +271,14 @@ const ProsAndCons = ({
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
                                     {new Array(10).fill(1, 1, 10).map((item, idx) => {
                                         return (
-                                            <option value={idx}
+                                            <option key={idx} value={idx}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
                                                 {idx}
                                             </option>
                                         );
                                     })}
                                 </select>
-                                <button onClick={() => addReason("pros")}>
+                                <button onClick={() => addReason("pros", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
                             </div>
@@ -273,9 +291,10 @@ const ProsAndCons = ({
                         )}
                         <div
                             className={"w-full flex flex-col justify-around gap-2"}>
-                            {options[selectedOption]?.pros.map((pro, i) => {
+                            {selectedOption?.pros.map((pro, i) => {
                                 return (
                                     <div
+                                        key={i}
                                         className={"w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between gap-2 px-2"}>
                                         <div className={"w-5/6"}>
                                             <span>{pro.description}</span>
@@ -288,9 +307,9 @@ const ProsAndCons = ({
                                             onClick={() => {
                                                 setOptions((prevOptions: any) => {
                                                     const newOptions = [...prevOptions];
-                                                    const optionSelected = newOptions[selectedOption];
-                                                    optionSelected.pros.splice(i, 1);
-                                                    newOptions[selectedOption] = optionSelected;
+                                                    const copyOption = selectedOption;
+                                                    copyOption?.pros.splice(i, 1);
+                                                    selectedOption = copyOption;
                                                     return newOptions;
                                                 });
                                             }}
@@ -318,7 +337,6 @@ const ProsAndCons = ({
                                     placeholder="Por ejemplo...Es caro"
                                     value={currentReason?.description}
                                     onChange={(e) => handleChangeReasons(e)}
-                                    onKeyDown={(e) => handleTabInput(e, "cons")}
                                     className={clsx(
                                         "py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white"
                                     )}
@@ -336,14 +354,14 @@ const ProsAndCons = ({
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
                                     {new Array(10).fill(1, 1, 10).map((item, idx) => {
                                         return (
-                                            <option value={idx}
+                                            <option key={idx} value={idx * -1}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
-                                                {idx}
+                                                {idx * -1}
                                             </option>
                                         );
                                     })}
                                 </select>
-                                <button onClick={() => addReason("cons")}>
+                                <button onClick={() => addReason("cons", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
                             </div>
@@ -356,10 +374,11 @@ const ProsAndCons = ({
                             <Message message={"Has alcanzado el límite de contras"}
                                      className={"text-red-500"}/>)}
                         <div
-                            className={"w-full flex flex-col justify-around"}>
-                            {options[selectedOption]?.cons.map((cons, i) => {
+                            className={"w-full flex flex-col justify-around gap-2"}>
+                            {selectedOption?.cons.map((cons, i) => {
                                 return (
                                     <div
+                                        key={i}
                                         className={"w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between gap-2 px-2"}>
                                         <div className={"w-5/6"}>
                                             <span>{cons.description}</span>
@@ -372,9 +391,9 @@ const ProsAndCons = ({
                                             onClick={() => {
                                                 setOptions((prevOptions: any) => {
                                                     const newOptions = [...prevOptions];
-                                                    const optionSelected = newOptions[selectedOption];
-                                                    optionSelected.cons.splice(i, 1);
-                                                    newOptions[selectedOption] = optionSelected;
+                                                    const copyOption = selectedOption;
+                                                    copyOption?.cons.splice(i, 1);
+                                                    selectedOption = copyOption;
                                                     return newOptions;
                                                 });
                                             }}
