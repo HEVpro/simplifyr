@@ -1,16 +1,17 @@
 import clsx from "clsx";
 import { useState } from "react";
+import {Message} from "@/components/Message";
 
 type DecisionProps = {
   currentStep: number;
-  setCurrentSte: (value: number) => void;
+  setCurrentStep: (value: number) => void;
 };
-const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
+const Decision = ({ currentStep, setCurrentStep }: DecisionProps) => {
   const [decision, setDecision] = useState("");
 
   const handleDecision = (e: any) => {
     if (e.key === "Enter") {
-      setCurrentSte(2);
+      setCurrentStep(2);
     }
   };
 
@@ -19,7 +20,8 @@ const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
       <label htmlFor="decision" className="text-4xl">
         ¿Qué decisión quieres tomar?
       </label>
-      <div className="flex items-center justify-between border-b-2 border-white mb-1">
+      <div className={clsx("flex items-center justify-between border-b-2 mb-1",
+          currentStep > 1 ? "border-gray-600" : "border-white",)}>
         <input
           disabled={currentStep > 1}
           type="text"
@@ -34,12 +36,12 @@ const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
             currentStep > 1 ? "text-green-300" : "text-white"
           )}
         />
-        <button onClick={() => setCurrentSte(2)}>
+        <button onClick={() => setCurrentStep(2)}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={clsx(
-              "icon icon-tabler icon-tabler-circle-check hover:scale-110 transition ",
-              currentStep > 1 ? "stroke-green-300" : "stroke-white"
+              "icon icon-tabler icon-tabler-circle-check  transition ",
+              currentStep > 1 ? "stroke-green-300 cursor-default " : "hover:scale-110 stroke-white"
             )}
             width="44"
             height="44"
@@ -54,10 +56,7 @@ const Decision = ({ currentStep, setCurrentSte }: DecisionProps) => {
           </svg>
         </button>
       </div>
-      <span className="italic text-sm">
-        Cuando termines y quieras pasar al siguiente paso, pulsa el check o
-        presiona 'Enter'
-      </span>
+      <Message message={"Cuando termines y quieras pasar al siguiente paso, pulsa el check o presiona 'Enter'"}/>
     </div>
   );
 };
