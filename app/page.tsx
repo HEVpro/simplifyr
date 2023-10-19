@@ -10,11 +10,43 @@ import {Options} from "@/components/Options";
     options: OptionsProps[];
 }*/
 
+export interface MessageError {
+    active: boolean;
+    type: errorMessageType;
+    group: errorMessageGroup
+    message: string | undefined;
+}
+
+export type errorMessageType = "empty" | "limit" | null
+export type errorMessageGroup = "decision" | "option" | "pros" | "cons" | null
 
 export default function Home() {
 
     const [currentStep, setCurrentStep] = useState(1);
+    const [messageError, setMessageError] = useState<MessageError>({
+        active: false,
+        type: null,
+        group: null,
+        message: ""
+    })
 
+    const showMessageError = (type: errorMessageType, group: errorMessageGroup) => {
+        let message
+        /*decidir si los mensajes los seteamos aqui o en su componente Message*/
+        if (type === "limit") {
+            message = "Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero"
+        } else if (type === "empty") {
+            message = "Debes rellenar los campos"
+        }
+        setMessageError({
+            active: true,
+            type: type,
+            group: group,
+            message: message
+        })
+        setTimeout(() => setMessageError({active: false, type: null, group: null, message: ""}), 3500)
+
+    }
 
     return (
         <div className={"max-w-4xl mx-auto py-24"}>
@@ -36,7 +68,7 @@ export default function Home() {
                     );
                 })}
             </div>
-            <Decision currentStep={currentStep} setCurrentStep={setCurrentStep}/>
-            {currentStep > 1 && <Options currentStep={currentStep} setCurrentStep={setCurrentStep}/>}
+            <Decision currentStep={currentStep} setCurrentStep={setCurrentStep} messageError={messageError} setMessageError={setMessageError} showMessageError={showMessageError} />
+            {currentStep > 1 && <Options currentStep={currentStep} setCurrentStep={setCurrentStep} messageError={messageError} setMessageError={setMessageError} showMessageError={showMessageError} />}
         </div>);
 }

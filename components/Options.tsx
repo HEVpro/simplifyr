@@ -1,39 +1,41 @@
 import clsx from "clsx";
 import {CircleArrowRight, CircleCheck, CircleMinus, CirclePlus} from "@/components/Icons";
 import {Message} from "@/components/Message";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {StepChildrenProps} from "@/components/Decision";
 
+
 interface ReasonProps {
-    description: string,
-    punt: string;
+    description: string;
+    punt: number;
 }
 
-interface OptionsProps {
+interface IOptions {
     id: number;
     label: string;
     pros: ReasonProps[];
     cons: ReasonProps[];
-    average: number
+    average: number;
 }
 
 interface ProsAndConsProps extends StepChildrenProps {
-    showMessage: boolean;
-    options: OptionsProps[];
+    options: IOptions[];
     setOptions: (value: any) => void;
-    selectedOption?: OptionsProps;
-    setSelectedOption: (value: any) => void;
-    showMessageError: (value: number) => void;
-    indexMessage: number;
+    selectedOption?: IOptions;
 }
 
-let nextId = 0
-export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
-    const [options, setOptions] = useState<OptionsProps[]>([]);
+
+export const Options = ({
+                            currentStep,
+                            setCurrentStep,
+                            messageError,
+                            setMessageError,
+                            showMessageError
+                        }: StepChildrenProps) => {
+    const [options, setOptions] = useState<IOptions[]>([]);
+    const [optionId, setOptionId] = useState(1);
     const [nameOption, setNameOption] = useState("");
-    const [selectedOption, setSelectedOption] = useState<OptionsProps>();
-    const [showMessage, setShowMessage] = useState(false)
-    const [indexMessage, setIndexMessage] = useState(0)
+    const [selectedOption, setSelectedOption] = useState<IOptions>();
 
 
     const handleAddOption = (e: any) => {
@@ -44,26 +46,31 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
 
     const addOption = () => {
         if (options.length < 3) {
-            setOptions((prev) => [
-                ...prev,
-                {id: nextId++, label: nameOption, pros: [], cons: [], average: 0},
-            ]);
-            setNameOption("");
+            if (nameOption.length > 0) {
+                setOptions((prev) => [
+                    ...prev,
+                    {id: optionId, label: nameOption, pros: [], cons: [], average: 0},
+                ]);
+                setOptionId(optionId + 1)
+                setNameOption("");
+            } else {
+                showMessageError("empty", "option")
+            }
         } else if (options.length === 3 && nameOption.length === 0) {
             setNameOption("");
         } else {
-            showMessageError(1);
+            showMessageError("limit", "option");
             setNameOption("");
         }
     }
 
-    const showMessageError = (index: number) => {
-        setShowMessage(true)
-        setIndexMessage(index)
-        setNameOption("")
-        setTimeout(() => setShowMessage(false), 3000)
 
-    }
+    useEffect(() => {
+        if (currentStep === 3 && options.length > 1) {
+            const defaultOption = options.filter((option) => option.id === 1)[0]
+            setSelectedOption(defaultOption)
+        }
+    }, [currentStep])
 
 
     return (
@@ -75,7 +82,7 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                 <div
                     className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
                         options.length == 3 ? "border-gray-600" : "border-white",
-                        showMessage && indexMessage === 1 ? "border-b-red-500" : "")}>
+                        messageError.group === "option" ? "border-b-red-500" : "")}>
                     {/* TODO: ADD STYLE WHEN DISABLED */}
                     <input
                         disabled={currentStep > 2}
@@ -88,7 +95,7 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                         onKeyDown={(e) => handleAddOption(e)}
                         className={clsx(
                             "w-2/3 py-4 border-0 bg-transparent text-2xl placeholder:pl-2 pl-2 focus:outline-none focus:border-none text-white",
-                            showMessage ? "text-red-600" : ""
+                            messageError.active ? "text-red-600" : ""
                         )}
                     />
                     <button onClick={() => addOption()}>
@@ -99,18 +106,21 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                                 className={clsx(
                                     "icon icon-tabler icon-tabler-circle-plus transition-colors duration-300",
                                     options.length == 3 ? "stroke-gray-600 cursor-default" : "stroke-white",
-                                    showMessage ? "stroke-red-500" : "")}
+                                    messageError.group === "option" && messageError.type === "limit" ? "stroke-red-500" : "")}
                             />
                         )}
                     </button>
                 </div>
-                {showMessage && indexMessage === 1 && (
+                {messageError.group === "option" && messageError.type === "limit" ? (
                     <Message
-                        message={"Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero"}
+                        message={messageError.message}
                         className="text-red-500"/>
-                )}
+                ) : messageError.type === "empty" &&
+                    <Message
+                        message={"El campo no puede estar vacío"}
+                        className="text-red-500"/>}
                 <div className="mt-4 flex flex-col gap-y-2">
-                    {options.map((option, idx) => {
+                    {options.map((option) => {
                         return (
                             <div
                                 key={option.id}
@@ -126,8 +136,8 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
                                             return prev.filter((element) => (element.id !== option.id));
                                         });
                                     }}
-                                >
-                                    <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
+                                >{currentStep === 2 &&
+                                    <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>}
                                 </button>
 
                             </div>
@@ -148,9 +158,9 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
             </div>
             {currentStep > 2 && <ProsAndCons options={options} setOptions={setOptions}
                                              currentStep={currentStep} setCurrentStep={setCurrentStep}
-                                             indexMessage={indexMessage} showMessageError={showMessageError}
-                                             showMessage={showMessage} selectedOption={selectedOption}
-                                             setSelectedOption={setSelectedOption}/>}
+                                             showMessageError={showMessageError}
+                                             selectedOption={selectedOption}
+                                             messageError={messageError} setMessageError={setMessageError}/>}
         </>
     )
 }
@@ -159,16 +169,15 @@ export const Options = ({currentStep, setCurrentStep}: StepChildrenProps) => {
 const ProsAndCons = ({
                          currentStep,
                          setCurrentStep,
-                         showMessage,
                          setOptions,
                          options,
                          selectedOption,
-                         setSelectedOption,
+                         setMessageError,
                          showMessageError,
-                         indexMessage
+                         messageError
                      }: ProsAndConsProps) => {
     const [showSection, setShowSection] = useState(1);
-    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", punt: ""});
+    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", punt: 0});
 
 
     const handleChangeReasons = (e: any) => {
@@ -187,15 +196,15 @@ const ProsAndCons = ({
                 if (option[type].length < 2) {
                     if (Object.values(currentReason).every((value) => value !== "")) {
                         option[type].push(currentReason)
-                        setCurrentReason({description: "", punt: ""})
+                        setCurrentReason({description: "", punt: 0})
                         calculateAverage(option)
                         return option
                     } else {
-                        showMessageError(2);
-                        setCurrentReason({description: "", punt: ""})
+                        showMessageError("empty", type);
+                        setCurrentReason({description: "", punt: 0})
                     }
                 } else {
-                    showMessageError(type === "pros" ? 3 : 4)
+                    showMessageError("limit", type)
                 }
             }
             return option;
@@ -203,20 +212,24 @@ const ProsAndCons = ({
         setOptions(newOptions)
     };
 
-    const calculateAverage = (option: OptionsProps) => {
+    const calculateAverage = (option: IOptions) => {
         let sumCons = 0;
         let sumPros = 0;
 
         selectedOption?.pros.forEach((num) => {
-            sumPros += parseFloat(num.punt);
+            sumPros += Number(num.punt);
         });
 
         selectedOption?.cons.forEach((num) => {
-            sumCons += parseFloat(num.punt);
+            sumCons += Number(num.punt);
         });
 
         option.average = sumPros + sumCons;
     };
+
+    useEffect(() => {
+        console.log(options)
+    }, [])
 
     return (
         <div className="max-w-2xl mx-auto mt-8">
@@ -245,7 +258,7 @@ const ProsAndCons = ({
                     <div className={"flex flex-col gap-3"}>
                         <div className={"flex flex-row gap-3"}>
                             <div className={clsx("w-4/6 border-b-2 border-white mb-1",
-                                showMessage && indexMessage >= 2 ? "border-b-red-500" : "")}>
+                                messageError.group === "pros" ? "border-b-red-500" : "")}>
                                 <input
                                     type="text"
                                     id="description"
@@ -260,14 +273,14 @@ const ProsAndCons = ({
                             </div>
 
                             <div className={clsx("w-2/6 border-b-2  flex flex-row mb-1",
-                                showMessage && indexMessage >= 2 ? "border-b-red-500" : "border-white")}>
+                                messageError.group === "pros" ? "border-b-red-500" : "border-white")}>
                                 <select id="punt"
                                         name="punt"
                                         value={currentReason?.punt}
                                         onChange={(e) => handleChangeReasons(e)}
                                         className={clsx(
                                             "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
-                                            currentReason.punt === "" ? "text-gray-400" : "text-white")}>
+                                            currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
                                     {new Array(10).fill(1, 1, 10).map((item, idx) => {
                                         return (
@@ -283,10 +296,9 @@ const ProsAndCons = ({
                                 </button>
                             </div>
                         </div>
-                        {showMessage && indexMessage === 2 && (
+                        {messageError.group === "pros" && messageError.type === "empty" ? (
                             <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
-                        )}
-                        {showMessage && indexMessage === 3 && (
+                        ) : messageError.type === "limit" && (
                             <Message message={"Has alcanzado el límite de pros"} className={"text-red-500"}/>
                         )}
                         <div
@@ -329,7 +341,7 @@ const ProsAndCons = ({
                     <div className={"flex flex-col gap-3"}>
                         <div className={"flex flex-row gap-3"}>
                             <div className={clsx("w-4/6 border-b-2 mb-1",
-                                showMessage && indexMessage >= 2 ? "border-b-red-500" : "border-white")}>
+                                messageError.group === "cons" ? "border-b-red-500" : "border-white")}>
                                 <input
                                     type="text"
                                     id="description"
@@ -343,18 +355,18 @@ const ProsAndCons = ({
                                 />
                             </div>
                             <div className={clsx("w-2/6 border-b-2 flex flex-row mb-1",
-                                showMessage && indexMessage >= 2 ? "border-b-red-500" : "border-white")}>
+                                messageError.group === "cons" ? "border-b-red-500" : "border-white")}>
                                 <select id="punt"
                                         name="punt"
                                         value={currentReason?.punt}
                                         onChange={(e) => handleChangeReasons(e)}
                                         className={clsx(
                                             "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
-                                            currentReason.punt === "" ? "text-gray-400" : "text-white")}>
+                                            currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
                                     {new Array(10).fill(1, 1, 10).map((item, idx) => {
                                         return (
-                                            <option key={idx} value={idx * -1}
+                                            <option key={idx} value={Number(idx * -1)}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
                                                 {idx * -1}
                                             </option>
@@ -366,11 +378,9 @@ const ProsAndCons = ({
                                 </button>
                             </div>
                         </div>
-                        {showMessage && indexMessage === 2 && (
+                        {messageError.group === "cons" && messageError.type === "empty" ? (
                             <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
-                        )}
-
-                        {showMessage && indexMessage === 4 && (
+                        ) : messageError.type === "limit" && (
                             <Message message={"Has alcanzado el límite de contras"}
                                      className={"text-red-500"}/>)}
                         <div
