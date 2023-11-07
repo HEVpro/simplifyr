@@ -33,7 +33,7 @@ const Decision = ({
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
+        <div className="mx-auto">
             <label htmlFor="decision" className="text-4xl">
                 ¿Qué decisión quieres tomar?
             </label>
@@ -75,7 +75,7 @@ const Decision = ({
             </div>
             <div className={"flex flex-col gap-2"}>
                 {messageError.group === "decision" && messageError.type === "empty" && (
-                    <Message message={"El campo no puede estar vacío"} className="text-red-500"/>
+                    <Message message={"El campo no puede estar vacío"} variant="alert"/>
                 )}
                 <Message
                     message={"Cuando termines y quieras pasar al siguiente paso, pulsa el check o presiona 'Enter'"}/>

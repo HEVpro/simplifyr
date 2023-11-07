@@ -14,7 +14,6 @@ export interface MessageError {
     active: boolean;
     type: errorMessageType;
     group: errorMessageGroup
-    message: string | undefined;
 }
 
 export type errorMessageType = "empty" | "limit" | null
@@ -27,29 +26,21 @@ export default function Home() {
         active: false,
         type: null,
         group: null,
-        message: ""
     })
 
     const showMessageError = (type: errorMessageType, group: errorMessageGroup) => {
-        let message
-        /*decidir si los mensajes los seteamos aqui o en su componente Message*/
-        if (type === "limit") {
-            message = "Has alcanzado el límite de opciones, si quieres añadir otra, debes eliminar una primero"
-        } else if (type === "empty") {
-            message = "Debes rellenar los campos"
-        }
+
         setMessageError({
             active: true,
             type: type,
             group: group,
-            message: message
         })
-        setTimeout(() => setMessageError({active: false, type: null, group: null, message: ""}), 3500)
+        setTimeout(() => setMessageError({active: false, type: null, group: null}), 3500)
 
     }
 
     return (
-        <div className={"max-w-4xl mx-auto py-24"}>
+        <div className={"max-w-5xl mx-auto py-24"}>
             <div className="max-w-lg mx-auto mb-8 flex items-center justify-between">
                 {new Array(4).fill(0).map((item, idx) => {
                     return (

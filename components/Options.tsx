@@ -64,7 +64,6 @@ export const Options = ({
         }
     }
 
-
     useEffect(() => {
         if (currentStep === 3 && options.length > 1) {
             const defaultOption = options.filter((option) => option.id === 1)[0]
@@ -73,9 +72,10 @@ export const Options = ({
     }, [currentStep])
 
 
+
     return (
         <>
-            <div className="max-w-2xl mx-auto mt-8">
+            <div className="mx-auto mt-8">
                 <label htmlFor="option" className="text-4xl">
                     ¿Qué opciones tienes?
                 </label>
@@ -83,7 +83,6 @@ export const Options = ({
                     className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
                         options.length == 3 ? "border-gray-600" : "border-white",
                         messageError.group === "option" ? "border-b-red-500" : "")}>
-                    {/* TODO: ADD STYLE WHEN DISABLED */}
                     <input
                         disabled={currentStep > 2}
                         type="text"
@@ -111,14 +110,11 @@ export const Options = ({
                         )}
                     </button>
                 </div>
-                {messageError.group === "option" && messageError.type === "limit" ? (
+                {messageError.group === "option" &&  (
                     <Message
-                        message={messageError.message}
-                        className="text-red-500"/>
-                ) : messageError.type === "empty" &&
-                    <Message
-                        message={"El campo no puede estar vacío"}
-                        className="text-red-500"/>}
+                        message={messageError.type === "limit" ? "Has alcanzado el número máximo de opciones. Borra una para añadir otra." : "El campo no puede estar vacío"}
+                        variant="alert"/>
+                )}
                 <div className="mt-4 flex flex-col gap-y-2">
                     {options.map((option) => {
                         return (
@@ -227,16 +223,25 @@ const ProsAndCons = ({
         option.average = sumPros + sumCons;
     };
 
-    useEffect(() => {
-        console.log(options)
-    }, [])
+    const degree = [
+        {value: 1, label: "Insignificante"},
+        {value: 2, label: "Relevante"},
+        {value: 3, label: "Significativo"},
+        {value: 4, label: "Valioso"},
+        {value: 5, label: "Fundamental"},
+        {value: 6, label: "Crucial"},
+        {value: 7, label: "Transcendental"},
+        {value: 8, label: "Indispensable"},
+        {value: 9, label: "Vital"},
+    ]
+
 
     return (
-        <div className="max-w-2xl mx-auto mt-8">
-            <div className="flex text-3xl gap-2 justify-around">
+        <div className="mx-auto mt-8">
+            <div className="flex text-3xl justify-between items-center gap-4">
                 <button
-                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition",
-                        showSection === 1 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
+                    className={clsx("w-1/2 py-2 rounded-lg transition",
+                        showSection === 1 ? "bg-white text-black" : "bg-gray-600 hover:bg-white text-gray-300 hover:text-black")}
                     onClick={() => {
                         setShowSection(1);
                     }}
@@ -244,8 +249,8 @@ const ProsAndCons = ({
                     Pros
                 </button>
                 <button
-                    className={clsx("py-1 px-4 rounded-lg hover:scale-110 hover:border-2 transition",
-                        showSection === 2 ? "border-2 rounded-lg bg-white text-black scale-110 " : "")}
+                    className={clsx("w-1/2 py-2 rounded-lg transition",
+                        showSection === 2 ? "bg-white text-black" : " bg-gray-600 hover:bg-white text-gray-300 hover:text-black")}
                     onClick={() => {
                         setShowSection(2)
                     }}
@@ -253,6 +258,7 @@ const ProsAndCons = ({
                     Cons
                 </button>
             </div>
+
             <div className="mt-2">
                 {showSection === 1 && (
                     <div className={"flex flex-col gap-3"}>
@@ -272,21 +278,21 @@ const ProsAndCons = ({
                                 />
                             </div>
 
-                            <div className={clsx("w-2/6 border-b-2  flex flex-row mb-1",
+                            <div className={clsx("w-2/6 border-b-2 flex flex-row mb-1",
                                 messageError.group === "pros" ? "border-b-red-500" : "border-white")}>
                                 <select id="punt"
                                         name="punt"
                                         value={currentReason?.punt}
                                         onChange={(e) => handleChangeReasons(e)}
                                         className={clsx(
-                                            "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
+                                            "w-full py-4 border-0 bg-transparent text-xl placeholder:pl-2 focus:outline-none focus:border-none ",
                                             currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                    {new Array(10).fill(1, 1, 10).map((item, idx) => {
+                                    {degree.map((item, idx) => {
                                         return (
-                                            <option key={idx} value={idx}
+                                            <option key={idx} value={item.value}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
-                                                {idx}
+                                                {item.label}
                                             </option>
                                         );
                                     })}
@@ -296,10 +302,8 @@ const ProsAndCons = ({
                                 </button>
                             </div>
                         </div>
-                        {messageError.group === "pros" && messageError.type === "empty" ? (
-                            <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
-                        ) : messageError.type === "limit" && (
-                            <Message message={"Has alcanzado el límite de pros"} className={"text-red-500"}/>
+                        {messageError.group === "pros" && (
+                            <Message message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de pros"} variant="alert"/>
                         )}
                         <div
                             className={"w-full flex flex-col justify-around gap-2"}>
@@ -364,11 +368,11 @@ const ProsAndCons = ({
                                             "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
                                             currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                    {new Array(10).fill(1, 1, 10).map((item, idx) => {
+                                    {degree.map((item, idx) => {
                                         return (
-                                            <option key={idx} value={Number(idx * -1)}
+                                            <option key={idx} value={item.value}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
-                                                {idx * -1}
+                                                {item.label}
                                             </option>
                                         );
                                     })}
@@ -378,11 +382,9 @@ const ProsAndCons = ({
                                 </button>
                             </div>
                         </div>
-                        {messageError.group === "cons" && messageError.type === "empty" ? (
-                            <Message message={"Debes rellenar los campos"} className={"text-red-500"}/>
-                        ) : messageError.type === "limit" && (
-                            <Message message={"Has alcanzado el límite de contras"}
-                                     className={"text-red-500"}/>)}
+                        {messageError.group === "cons" &&  (
+                            <Message message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de contras"} variant="alert"/>
+                        )}
                         <div
                             className={"w-full flex flex-col justify-around gap-2"}>
                             {selectedOption?.cons.map((cons, i) => {
