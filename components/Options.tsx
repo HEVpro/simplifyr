@@ -1,13 +1,14 @@
 import clsx from "clsx";
 import {CircleArrowRight, CircleCheck, CircleMinus, CirclePlus} from "@/components/Icons";
 import {Message} from "@/components/Message";
-import {useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 import {StepChildrenProps} from "@/components/Decision";
+import Select, {Option} from "@/components/Select";
 
 
 interface ReasonProps {
     description: string;
-    punt: number;
+    value: number;
 }
 
 interface IOptions {
@@ -72,7 +73,6 @@ export const Options = ({
     }, [currentStep])
 
 
-
     return (
         <>
             <div className="mx-auto mt-8">
@@ -110,7 +110,7 @@ export const Options = ({
                         )}
                     </button>
                 </div>
-                {messageError.group === "option" &&  (
+                {messageError.group === "option" && (
                     <Message
                         message={messageError.type === "limit" ? "Has alcanzado el número máximo de opciones. Borra una para añadir otra." : "El campo no puede estar vacío"}
                         variant="alert"/>
@@ -173,10 +173,23 @@ const ProsAndCons = ({
                          messageError
                      }: ProsAndConsProps) => {
     const [showSection, setShowSection] = useState(1);
-    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", punt: 0});
+    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", value: 0});
+
+    const degrees = [
+        {id: 1, value: 1, label: "Insignificante"},
+        {id: 2, value: 2, label: "Relevante"},
+        {id: 3, value: 3, label: "Significativo"},
+        {id: 4, value: 4, label: "Valioso"},
+        {id: 5, value: 5, label: "Fundamental"},
+        {id: 6, value: 6, label: "Crucial"},
+        {id: 7, value: 7, label: "Transcendental"},
+        {id: 8, value: 8, label: "Indispensable"},
+        {id: 9, value: 9, label: "Vital"},
+    ]
+    const [selectedDegree, setSelectedDegree] = useState(degrees[0]);
 
 
-    const handleChangeReasons = (e: any) => {
+    const handleChangeReasons = (e: ChangeEvent<HTMLInputElement>) => {
         const {value, name} = e.target
         setCurrentReason((prevReason) => ({
             ...prevReason,
@@ -184,7 +197,14 @@ const ProsAndCons = ({
         }))
     }
 
+    const handleChangeSelect = (selectedValue: Option) => {
+        setSelectedDegree(selectedValue);
+        setCurrentReason((prevReason) => ({
+            ...prevReason,
+            value: selectedValue.value,
+        }))
 
+    };
     const addReason = (type: "pros" | "cons", optionId?: number) => {
         const copyArrOptions = [...options]
         const newOptions = copyArrOptions.map((option) => {
@@ -192,12 +212,12 @@ const ProsAndCons = ({
                 if (option[type].length < 2) {
                     if (Object.values(currentReason).every((value) => value !== "")) {
                         option[type].push(currentReason)
-                        setCurrentReason({description: "", punt: 0})
+                        setCurrentReason({description: "", value: 0})
                         calculateAverage(option)
                         return option
                     } else {
                         showMessageError("empty", type);
-                        setCurrentReason({description: "", punt: 0})
+                        setCurrentReason({description: "", value: 0})
                     }
                 } else {
                     showMessageError("limit", type)
@@ -213,27 +233,15 @@ const ProsAndCons = ({
         let sumPros = 0;
 
         selectedOption?.pros.forEach((num) => {
-            sumPros += Number(num.punt);
+            sumPros += Number(num.value);
         });
 
         selectedOption?.cons.forEach((num) => {
-            sumCons += Number(num.punt);
+            sumCons += Number(num.value) * -1;
         });
 
         option.average = sumPros + sumCons;
     };
-
-    const degree = [
-        {value: 1, label: "Insignificante"},
-        {value: 2, label: "Relevante"},
-        {value: 3, label: "Significativo"},
-        {value: 4, label: "Valioso"},
-        {value: 5, label: "Fundamental"},
-        {value: 6, label: "Crucial"},
-        {value: 7, label: "Transcendental"},
-        {value: 8, label: "Indispensable"},
-        {value: 9, label: "Vital"},
-    ]
 
 
     return (
@@ -278,17 +286,20 @@ const ProsAndCons = ({
                                 />
                             </div>
 
-                            <div className={clsx("w-2/6 border-b-2 flex flex-row mb-1",
+                            <div className={clsx("relative w-2/6 border-b-2 flex flex-row mb-1",
                                 messageError.group === "pros" ? "border-b-red-500" : "border-white")}>
-                                <select id="punt"
+                                <div className={" w-full"}>
+                                    <Select options={degrees} onChange={handleChangeSelect} selectedOption={selectedDegree}/>
+                                </div>
+                                {/*<select id="punt"
                                         name="punt"
-                                        value={currentReason?.punt}
+                                        value={currentReason?.value}
                                         onChange={(e) => handleChangeReasons(e)}
                                         className={clsx(
                                             "w-full py-4 border-0 bg-transparent text-xl placeholder:pl-2 focus:outline-none focus:border-none ",
-                                            currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
+                                            currentReason.value === 0 ? "text-gray-400" : "text-white")}>
                                     <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                    {degree.map((item, idx) => {
+                                    {degrees.map((item, idx) => {
                                         return (
                                             <option key={idx} value={item.value}
                                                     className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
@@ -296,14 +307,16 @@ const ProsAndCons = ({
                                             </option>
                                         );
                                     })}
-                                </select>
+                                </select>*/}
                                 <button onClick={() => addReason("pros", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
                             </div>
                         </div>
                         {messageError.group === "pros" && (
-                            <Message message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de pros"} variant="alert"/>
+                            <Message
+                                message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de pros"}
+                                variant="alert"/>
                         )}
                         <div
                             className={"w-full flex flex-col justify-around gap-2"}>
@@ -316,7 +329,7 @@ const ProsAndCons = ({
                                             <span>{pro.description}</span>
                                         </div>
                                         <div className={"w-1/6"}>
-                                            <span>{pro.punt}</span>
+                                            <span>{pro.value}</span>
                                         </div>
                                         <button
                                             className={"w-8"}
@@ -358,9 +371,13 @@ const ProsAndCons = ({
                                     )}
                                 />
                             </div>
-                            <div className={clsx("w-2/6 border-b-2 flex flex-row mb-1",
+                            <div className={clsx("relative w-2/6 border-b-2 flex flex-row mb-1",
                                 messageError.group === "cons" ? "border-b-red-500" : "border-white")}>
-                                <select id="punt"
+                                <div className={" w-full"}>
+                                    <Select options={degrees} onChange={handleChangeSelect}
+                                            selectedOption={selectedDegree}/>
+                                </div>
+                                {/* <select id="punt"
                                         name="punt"
                                         value={currentReason?.punt}
                                         onChange={(e) => handleChangeReasons(e)}
@@ -376,14 +393,16 @@ const ProsAndCons = ({
                                             </option>
                                         );
                                     })}
-                                </select>
+                                </select>*/}
                                 <button onClick={() => addReason("cons", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
                             </div>
                         </div>
-                        {messageError.group === "cons" &&  (
-                            <Message message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de contras"} variant="alert"/>
+                        {messageError.group === "cons" && (
+                            <Message
+                                message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de contras"}
+                                variant="alert"/>
                         )}
                         <div
                             className={"w-full flex flex-col justify-around gap-2"}>
@@ -396,7 +415,7 @@ const ProsAndCons = ({
                                             <span>{cons.description}</span>
                                         </div>
                                         <div className={"w-1/6"}>
-                                            <span>{cons.punt}</span>
+                                            <span>{cons.value}</span>
                                         </div>
                                         <button
                                             className={"w-8"}
