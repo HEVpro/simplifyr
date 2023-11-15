@@ -242,6 +242,21 @@ const ProsAndCons = ({
         setOptions(sortOptions(newOptions))
     };
 
+    const deleteReason = (index: number, type: "pros" | "cons") => {
+        setOptions( (prevOptions: any) => {
+            const newOptions = [...prevOptions];
+            const copyOption = selectedOption;
+            if (copyOption) {
+                copyOption[type].splice(index, 1);
+            }
+            selectedOption = copyOption;
+            handleAverage(copyOption as IOptions);
+            return sortOptions(newOptions);
+
+        });
+    }
+
+
 
     const sortOptions = (options: IOptions[]) => {
         return options.sort((a: IOptions, b: IOptions) => {
@@ -344,16 +359,7 @@ const ProsAndCons = ({
                                         </div>
                                         <button
                                             className={"w-8"}
-                                            onClick={() => {
-                                                setOptions((prevOptions: any) => {
-                                                    const newOptions = [...prevOptions];
-                                                    const copyOption= selectedOption;
-                                                    copyOption?.pros.splice(i, 1);
-                                                    selectedOption = copyOption;
-                                                    handleAverage(copyOption as IOptions);
-                                                    return sortOptions(newOptions);
-                                                });
-                                            }}
+                                            onClick={() => deleteReason(i, "pros")}
                                         >
                                             <CircleMinus
                                                 className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
@@ -414,16 +420,7 @@ const ProsAndCons = ({
                                         </div>
                                         <button
                                             className={"w-8"}
-                                            onClick={() => {
-                                                setOptions((prevOptions: any) => {
-                                                    const newOptions = [...prevOptions];
-                                                    const copyOption = selectedOption;
-                                                    copyOption?.cons.splice(i, 1);
-                                                    handleAverage(copyOption as IOptions);
-                                                    selectedOption = copyOption;
-                                                    return sortOptions(newOptions);
-                                                });
-                                            }}
+                                            onClick={() => deleteReason(i, "cons")}
                                         >
                                             <CircleMinus
                                                 className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
