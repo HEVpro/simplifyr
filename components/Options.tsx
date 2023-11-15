@@ -4,6 +4,7 @@ import {Message} from "@/components/Message";
 import {ChangeEvent, useEffect, useState} from "react";
 import {StepChildrenProps} from "@/components/Decision";
 import Select, {Option} from "@/components/Select";
+import {Reorder} from "framer-motion";
 
 
 interface ReasonProps {
@@ -37,7 +38,6 @@ export const Options = ({
     const [optionId, setOptionId] = useState(1);
     const [nameOption, setNameOption] = useState("");
     const [selectedOption, setSelectedOption] = useState<IOptions>();
-
 
     const handleAddOption = (e: any) => {
         if (e.key === "Enter") {
@@ -115,32 +115,43 @@ export const Options = ({
                         message={messageError.type === "limit" ? "Has alcanzado el número máximo de opciones. Borra una para añadir otra." : "El campo no puede estar vacío"}
                         variant="alert"/>
                 )}
-                <div className="mt-4 flex flex-col gap-y-2">
-                    {options.map((option) => {
-                        return (
-                            <div
-                                key={option.id}
-                                className={clsx("w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between px-2",
-                                    currentStep > 2 && "cursor-pointer",
-                                    currentStep > 2 && selectedOption?.id === option.id ? " border-2 " : "")}
-                                onClick={() => setSelectedOption(option)}>
-                                <span>{option.label}</span>
-                                <button
-                                    disabled={currentStep > 2}
-                                    onClick={() => {
-                                        setOptions((prev) => {
-                                            return prev.filter((element) => (element.id !== option.id));
-                                        });
-                                    }}
-                                >{currentStep === 2 &&
-                                    <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>}
-                                </button>
 
-                            </div>
+                <Reorder.Group axis="y" onReorder={setOptions} values={options}>
+                    <div className="mt-4 flex flex-col gap-y-2">
+                        {options.map((option) => {
+                            return (
+                                <Reorder.Item key={option.id} value={option}>
+                                <div
+                                    className={clsx("cursor-grab reorder-handle w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between px-2",
+                                        currentStep > 2 && "cursor-pointer",
+                                        currentStep > 2 && selectedOption?.id === option.id ? " border-2 bg-white text-gray-700 font-bold" : "")}
+                                    onClick={() => setSelectedOption(option)}>
+                                    <span>{option.label}</span>
+                                    <div className={"flex justify-between"}>
+                                        <span> Puntuación: {option.average}</span>
+                                        {currentStep === 2 &&
+                                            <button
+                                                disabled={currentStep > 2}
+                                                onClick={() => {
+                                                    setOptions((prev) => {
+                                                        return prev.filter((element) => (element.id !== option.id));
+                                                    });
+                                                }}
+                                            >
+                                            <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
+                                        </button>
+                                        }
 
-                        );
-                    })}
-                </div>
+                                    </div>
+
+                                </div>
+                                </Reorder.Item>
+
+                            );
+                        })}
+                        </div>
+                </Reorder.Group>
+
                 {options.length >= 2 && (
                     <div className={"flex justify-between items-center mt-4"}>
                         <Message
@@ -152,12 +163,14 @@ export const Options = ({
                     </div>
                 )}
             </div>
-            {currentStep > 2 && <ProsAndCons options={options} setOptions={setOptions}
-                                             currentStep={currentStep} setCurrentStep={setCurrentStep}
-                                             showMessageError={showMessageError}
-                                             selectedOption={selectedOption}
-                                             messageError={messageError} setMessageError={setMessageError}/>}
-        </>
+            {
+                currentStep > 2 && <ProsAndCons options={options} setOptions={setOptions}
+                                                currentStep={currentStep} setCurrentStep={setCurrentStep}
+                                                showMessageError={showMessageError}
+                                                selectedOption={selectedOption}
+                                                messageError={messageError} setMessageError={setMessageError}/>
+            }
+</>
     )
 }
 
@@ -213,7 +226,7 @@ const ProsAndCons = ({
                     if (Object.values(currentReason).every((value) => value !== "")) {
                         option[type].push(currentReason)
                         setCurrentReason({description: "", value: 0})
-                        calculateAverage(option)
+                        handleAverage(option)
                         return option
                     } else {
                         showMessageError("empty", type);
@@ -225,10 +238,24 @@ const ProsAndCons = ({
             }
             return option;
         });
-        setOptions(newOptions)
+
+        setOptions(sortOptions(newOptions))
     };
 
-    const calculateAverage = (option: IOptions) => {
+
+    const sortOptions = (options: IOptions[]) => {
+        return options.sort((a: IOptions, b: IOptions) => {
+            if (a.average > b.average) {
+                return -1
+            } else if (a.average < b.average) {
+                return 1
+            } else {
+                return 0
+            }
+        })
+    }
+
+    const handleAverage = (option: IOptions) => {
         let sumCons = 0;
         let sumPros = 0;
 
@@ -240,7 +267,7 @@ const ProsAndCons = ({
             sumCons += Number(num.value) * -1;
         });
 
-        option.average = sumPros + sumCons;
+        return option.average = sumPros + sumCons;
     };
 
 
@@ -289,25 +316,9 @@ const ProsAndCons = ({
                             <div className={clsx("relative w-2/6 border-b-2 flex flex-row mb-1",
                                 messageError.group === "pros" ? "border-b-red-500" : "border-white")}>
                                 <div className={" w-full"}>
-                                    <Select options={degrees} onChange={handleChangeSelect} selectedOption={selectedDegree}/>
+                                    <Select options={degrees} onChange={handleChangeSelect}
+                                            selectedOption={selectedDegree}/>
                                 </div>
-                                {/*<select id="punt"
-                                        name="punt"
-                                        value={currentReason?.value}
-                                        onChange={(e) => handleChangeReasons(e)}
-                                        className={clsx(
-                                            "w-full py-4 border-0 bg-transparent text-xl placeholder:pl-2 focus:outline-none focus:border-none ",
-                                            currentReason.value === 0 ? "text-gray-400" : "text-white")}>
-                                    <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                    {degrees.map((item, idx) => {
-                                        return (
-                                            <option key={idx} value={item.value}
-                                                    className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
-                                                {item.label}
-                                            </option>
-                                        );
-                                    })}
-                                </select>*/}
                                 <button onClick={() => addReason("pros", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
@@ -336,10 +347,11 @@ const ProsAndCons = ({
                                             onClick={() => {
                                                 setOptions((prevOptions: any) => {
                                                     const newOptions = [...prevOptions];
-                                                    const copyOption = selectedOption;
+                                                    const copyOption= selectedOption;
                                                     copyOption?.pros.splice(i, 1);
                                                     selectedOption = copyOption;
-                                                    return newOptions;
+                                                    handleAverage(copyOption as IOptions);
+                                                    return sortOptions(newOptions);
                                                 });
                                             }}
                                         >
@@ -377,23 +389,6 @@ const ProsAndCons = ({
                                     <Select options={degrees} onChange={handleChangeSelect}
                                             selectedOption={selectedDegree}/>
                                 </div>
-                                {/* <select id="punt"
-                                        name="punt"
-                                        value={currentReason?.punt}
-                                        onChange={(e) => handleChangeReasons(e)}
-                                        className={clsx(
-                                            "w-full py-4 border-0 bg-transparent text-2xl placeholder:pl-2 focus:outline-none focus:border-none ",
-                                            currentReason.punt === 0 ? "text-gray-400" : "text-white")}>
-                                    <option value="" disabled={true} hidden>Del 1 al 9</option>
-                                    {degree.map((item, idx) => {
-                                        return (
-                                            <option key={idx} value={item.value}
-                                                    className={clsx("bg-black disabled:text-gray-600 checked:bg-gray-700")}>
-                                                {item.label}
-                                            </option>
-                                        );
-                                    })}
-                                </select>*/}
                                 <button onClick={() => addReason("cons", selectedOption?.id)}>
                                     <CirclePlus className={clsx("stroke-white")}/>
                                 </button>
@@ -424,8 +419,9 @@ const ProsAndCons = ({
                                                     const newOptions = [...prevOptions];
                                                     const copyOption = selectedOption;
                                                     copyOption?.cons.splice(i, 1);
+                                                    handleAverage(copyOption as IOptions);
                                                     selectedOption = copyOption;
-                                                    return newOptions;
+                                                    return sortOptions(newOptions);
                                                 });
                                             }}
                                         >
