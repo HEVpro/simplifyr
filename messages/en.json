@@ -1,0 +1,32 @@
+{
+  "index": {
+    "stepOne": {
+      "question": "What decision do you want to make?",
+      "placeholder": "For example... Buying a car",
+      "message": "When you're finished and want to move to the next step, click the checkmark or press 'Enter'."
+    },
+    "stepTwo": {
+      "question": "What options do you have?",
+      "placeholder": "For example... Honda Civic",
+      "message": "If you have between two or three options, click the arrow to go to the next step."
+    },
+    "stepThree": {
+      "placeholderPros": "For example... It's economical",
+      "placeholderCons": "For example... It's expensive",
+      "degrees": {
+        "1": "Insignificant",
+        "2":"Relevant",
+        "3":"Significant",
+        "4":"Valuable",
+        "5":"Fundamental",
+        "6":"Crucial",
+        "7":"Transcendental",
+        "8":"Indispensable",
+        "9":"Vital"
+      }
+    },
+    "errorMessageEmpty": "The field cannot be empty.",
+    "errorMessageEmptyReasons": "You must fill in both fields.",
+    "errorMessageLimit": "You've reached the maximum number of options. Delete one to add another."
+  }
+}

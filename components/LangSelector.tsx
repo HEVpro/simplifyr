@@ -1,27 +1,50 @@
-import {Fragment} from 'react'
-import {Listbox, Transition} from '@headlessui/react'
-import { ChevronUpDownIcon, CircleCheck} from "@/components/Icons";
+"use client";
 
-export interface Option {
-    id: any;
-    value: any;
-    label: string;
+import {Fragment, useCallback, useEffect, useMemo, useState, useTransition} from "react";
+import {createSharedPathnamesNavigation} from 'next-intl/navigation';
+import {Listbox, Transition} from "@headlessui/react";
+import {ChevronUpDownIcon, CircleCheck} from "@/components/Icons";
+import {useParams} from "next/navigation";
 
+interface Language {
+    value: string;
+    locale: string;
 }
 
-interface SelectProps {
-    options: Option[];
-    selectedOption: Option | any;
-    onChange: (value:Option) => void;
-}
 
-export default function Example({options, selectedOption, onChange}: SelectProps) {
+const languages = [
+    {value: "ESP", locale: "es",},
+    {value: "ENG", locale: "en",},
+]
+const locales = ['en', 'es'] as const;
+
+export default function LanguageSelector() {
+    const {usePathname, useRouter} = createSharedPathnamesNavigation({locales});
+    const router = useRouter();
+    const { locale } = useParams()
+    const pathname = usePathname();
+
+    const newLanguage = useMemo(
+        () => languages.find((lang) => lang.locale === locale),
+        [locale]
+    );
+    const selected = useMemo(() => newLanguage || languages[1], [newLanguage]);
+
+    const handleLanguage = useCallback(
+        (language: Language) => {
+            router.replace(pathname, { locale: language.locale });
+        },
+        [router, pathname]
+    );
+
+
     return (
-        <Listbox value={selectedOption} by="id" as={"div"} onChange={onChange}>
+        <div className={"ml-auto mb-5 w-32"}>
+             <Listbox value={newLanguage} by="value" as={"div"} onChange={handleLanguage}>
             <div className="relative mt-1">
                 <Listbox.Button
                     className={`relative w-full cursor-default rounded-lg py-4 pl-3 pr-10 text-left shadow-md focus:outline-none text-2xl`}>
-                    <span className="block truncate text-white">{selectedOption.label}</span>
+                    <span className="block truncate text-white">{selected.value}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon
                   className="h-5 w-5 stroke-white"
@@ -40,9 +63,9 @@ export default function Example({options, selectedOption, onChange}: SelectProps
                 >
                     <Listbox.Options
                         className="absolute mt-1 w-full overflow-auto rounded-md bg-white py-1 text-lg shadow-lg ring-1 ring-black/5 focus:outline-none ">
-                        {options.map((option, idx) => (
+                        {languages.map((option, idx) => (
                             <Listbox.Option
-                                key={option.id}
+                                key={idx}
                                 className={({active, selected}) => `relative cursor-default select-none py-2 pl-10 pr-4 ${selected ? 'bg-gray-500' : ''} ${active ? 'bg-gray-300 text-black' : 'text-gray-700'}`}
                                 value={option}
                             >
@@ -50,7 +73,7 @@ export default function Example({options, selectedOption, onChange}: SelectProps
                                     ({selected}) => (
                                         <>
                                   <span className={`block truncate ${selected ? 'font-bold bg-gray text-white' : 'font-normal'}`}>
-                                    {option.label}
+                                    {option.value}
                                   </span>
                                             {selected ? (
                                                 <span
@@ -67,5 +90,14 @@ export default function Example({options, selectedOption, onChange}: SelectProps
                 </Transition>
             </div>
         </Listbox>
-    )
+          {/*  <select name="language" id="language" defaultValue={locale} onChange={handleSelect}
+                    className='bg-black text-white rounded py-1 px-2 outline-none'>
+                {langs.map((lang) => (
+                    <option key={lang.id} value={lang.value}>
+                        {lang.label}
+                    </option>
+                ))}
+            </select>*/}
+        </div>
+    );
 }

@@ -1,0 +1,43 @@
+{
+  "index": {
+    "stepOne": {
+      "question": "¿Qué decisión quieres tomar?",
+      "placeholder": "Por ejemplo... Comprar un coche",
+      "message": "Cuando termines y quieras pasar al siguiente paso, pulsa el check o presiona 'Enter'."
+    },
+    "stepTwo": {
+      "question": "¿Qué opciones tienes?",
+      "placeholder": "Por ejemplo... Honda Civic",
+      "message": "Si tienes entre dos o tres opciones, pulsa la flecha para ir al siguiente paso.'"
+    },
+    "stepThree": {
+      "placeholderPros": "Por ejemplo... Es económico",
+      "placeholderCons": "Por ejemplo... Es caro",
+      "degrees": {
+        "1": "Insignificante",
+        "2":"Relevante",
+        "3":"Significativo",
+        "4":"Valioso",
+        "5":"Fundamental",
+        "6":"Crucial",
+        "7":"Transcendental",
+        "8":"Indispensable",
+        "9":"Vital"
+      }
+    },
+    "errorMessageEmpty": "El campo no puede estar vacío.",
+    "errorMessageEmptyReasons": "Debes rellenar ambos campos.",
+    "errorMessageLimit": "Has alcanzado el número máximo de opciones. Borra una para añadir otra.",
+    "errorMessageLimitPros": "Has alcanzado el límite de pros",
+    "errorMessageLimitCons": "Has alcanzado el límite de cons"
+  }
+}
+
+
+
+
+
+
+
+
+
