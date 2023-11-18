@@ -5,6 +5,7 @@ import {ChangeEvent, useEffect, useState} from "react";
 import {StepChildrenProps} from "@/components/Decision";
 import Select, {Option} from "@/components/Select";
 import {Reorder} from "framer-motion";
+import {useTranslations} from "next-intl";
 
 
 interface ReasonProps {
@@ -38,6 +39,7 @@ export const Options = ({
     const [optionId, setOptionId] = useState(1);
     const [nameOption, setNameOption] = useState("");
     const [selectedOption, setSelectedOption] = useState<IOptions>();
+    const t = useTranslations("index")
 
     const handleAddOption = (e: any) => {
         if (e.key === "Enter") {
@@ -77,7 +79,7 @@ export const Options = ({
         <>
             <div className="mx-auto mt-8">
                 <label htmlFor="option" className="text-4xl">
-                    ¿Qué opciones tienes?
+                    {t("stepTwo.question")}
                 </label>
                 <div
                     className={clsx("flex items-center justify-between border-b-2  mb-1 transition-colors duration-300",
@@ -88,7 +90,7 @@ export const Options = ({
                         type="text"
                         id="option"
                         name="option"
-                        placeholder="Por ejemplo...Renault megane"
+                        placeholder={t("stepTwo.placeholder")}
                         value={nameOption}
                         onChange={(e) => setNameOption(e.target.value)}
                         onKeyDown={(e) => handleAddOption(e)}
@@ -112,7 +114,7 @@ export const Options = ({
                 </div>
                 {messageError.group === "option" && (
                     <Message
-                        message={messageError.type === "limit" ? "Has alcanzado el número máximo de opciones. Borra una para añadir otra." : "El campo no puede estar vacío"}
+                        message={messageError.type === "limit" ? t("errorMessageLimit") : t("errorMessageEmpty")}
                         variant="alert"/>
                 )}
 
@@ -128,7 +130,7 @@ export const Options = ({
                                     onClick={() => setSelectedOption(option)}>
                                     <span>{option.label}</span>
                                     <div className={"flex justify-between"}>
-                                        <span> Puntuación: {option.average}</span>
+                                        <span> # {option.average}</span>
                                         {currentStep === 2 &&
                                             <button
                                                 disabled={currentStep > 2}
@@ -155,7 +157,7 @@ export const Options = ({
                 {options.length >= 2 && (
                     <div className={"flex justify-between items-center mt-4"}>
                         <Message
-                            message={"Si tienes entre dos o tres opciones, pulsa la flecha para ir al siguiente paso"}/>
+                            message={t("stepTwo.message")}/>
                         <button onClick={() => setCurrentStep(3)}>
                             <CircleArrowRight className={"w-8 h-8 stroke-white"}/>
                         </button>
@@ -187,17 +189,19 @@ const ProsAndCons = ({
                      }: ProsAndConsProps) => {
     const [showSection, setShowSection] = useState(1);
     const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", value: 0});
+    const t = useTranslations("index")
+
 
     const degrees = [
-        {id: 1, value: 1, label: "Insignificante"},
-        {id: 2, value: 2, label: "Relevante"},
-        {id: 3, value: 3, label: "Significativo"},
-        {id: 4, value: 4, label: "Valioso"},
-        {id: 5, value: 5, label: "Fundamental"},
-        {id: 6, value: 6, label: "Crucial"},
-        {id: 7, value: 7, label: "Transcendental"},
-        {id: 8, value: 8, label: "Indispensable"},
-        {id: 9, value: 9, label: "Vital"},
+        {id: 1, value: 1, label: t("stepThree.degrees.1")},
+        {id: 2, value: 2, label: t("stepThree.degrees.2")},
+        {id: 3, value: 3, label: t("stepThree.degrees.3")},
+        {id: 4, value: 4, label: t("stepThree.degrees.4")},
+        {id: 5, value: 5, label: t("stepThree.degrees.5")},
+        {id: 6, value: 6, label: t("stepThree.degrees.6")},
+        {id: 7, value: 7, label: t("stepThree.degrees.7")},
+        {id: 8, value: 8, label: t("stepThree.degrees.8")},
+        {id: 9, value: 9, label: t("stepThree.degrees.9")},
     ]
     const [selectedDegree, setSelectedDegree] = useState(degrees[0]);
 
@@ -214,7 +218,7 @@ const ProsAndCons = ({
         setSelectedDegree(selectedValue);
         setCurrentReason((prevReason) => ({
             ...prevReason,
-            value: selectedValue.value,
+            value: selectedValue.value as number,
         }))
 
     };
@@ -255,7 +259,6 @@ const ProsAndCons = ({
 
         });
     }
-
 
 
     const sortOptions = (options: IOptions[]) => {
@@ -319,7 +322,7 @@ const ProsAndCons = ({
                                     type="text"
                                     id="description"
                                     name="description"
-                                    placeholder="Por ejemplo...Es económico"
+                                    placeholder={t("stepThree.placeholderPros")}
                                     value={currentReason?.description}
                                     onChange={(e) => handleChangeReasons(e)}
                                     className={clsx(
@@ -341,7 +344,7 @@ const ProsAndCons = ({
                         </div>
                         {messageError.group === "pros" && (
                             <Message
-                                message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de pros"}
+                                message={messageError.type === "empty" ? t("errorMessageEmptyReasons") : t("errorMessageLimitPros")}
                                 variant="alert"/>
                         )}
                         <div
@@ -381,7 +384,7 @@ const ProsAndCons = ({
                                     type="text"
                                     id="description"
                                     name="description"
-                                    placeholder="Por ejemplo...Es caro"
+                                    placeholder={t("stepThree.placeholderCons")}
                                     value={currentReason?.description}
                                     onChange={(e) => handleChangeReasons(e)}
                                     className={clsx(
@@ -402,7 +405,7 @@ const ProsAndCons = ({
                         </div>
                         {messageError.group === "cons" && (
                             <Message
-                                message={messageError.type === "empty" ? "Debes rellenar los campos" : "Has alcanzado el límite de contras"}
+                                message={messageError.type === "empty" ? t("errorMessageEmptyReasons") : t("errorMessageLimitCons")}
                                 variant="alert"/>
                         )}
                         <div

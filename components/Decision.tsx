@@ -1,9 +1,9 @@
 import clsx from "clsx";
 import {useState} from "react";
 import {Message} from "@/components/Message";
-import {errorMessageGroup, errorMessageType, MessageError} from "@/app/page";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
+import {errorMessageGroup, errorMessageType, MessageError} from "@/app/[locale]/page";
+import {useTranslations} from "next-intl";
+
 
 export interface StepChildrenProps {
     currentStep: number;
@@ -20,6 +20,7 @@ const Decision = ({
                       showMessageError,
                       setMessageError
                   }: StepChildrenProps) => {
+    const t = useTranslations("index")
     const [decision, setDecision] = useState("");
 
     const handleDecision = (e: any) => {
@@ -35,7 +36,7 @@ const Decision = ({
     return (
         <div className="mx-auto">
             <label htmlFor="decision" className="text-4xl">
-                ¿Qué decisión quieres tomar?
+                {t("stepOne.question")}
             </label>
             <div className={clsx("flex items-center justify-between border-b-2 mb-1",
                 currentStep > 1 ? "border-gray-600" : messageError.group === "decision" ? "border-red-500" : "border-white",)}>
@@ -44,7 +45,7 @@ const Decision = ({
                     type="text"
                     id="decision"
                     name="decision"
-                    placeholder="Por ejemplo...Comprar un coche"
+                    placeholder={t("stepOne.placeholder")}
                     value={decision}
                     onChange={(e) => setDecision(e.target.value)}
                     onKeyDown={(e) => handleDecision(e)}
@@ -75,10 +76,10 @@ const Decision = ({
             </div>
             <div className={"flex flex-col gap-2"}>
                 {messageError.group === "decision" && messageError.type === "empty" && (
-                    <Message message={"El campo no puede estar vacío"} variant="alert"/>
+                    <Message message={t('errorMessageEmpty')} variant="alert"/>
                 )}
                 <Message
-                    message={"Cuando termines y quieras pasar al siguiente paso, pulsa el check o presiona 'Enter'"}/>
+                    message={t("stepOne.message")}/>
             </div>
         </div>
     );
