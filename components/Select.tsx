@@ -40,7 +40,7 @@ export default function Example({options, selectedOption, onChange}: SelectProps
                 >
                     <Listbox.Options
                         className="absolute mt-1 w-full overflow-auto rounded-md bg-white py-1 text-lg shadow-lg ring-1 ring-black/5 focus:outline-none ">
-                        {options.map((option, idx) => (
+                        {options.map((option) => (
                             <Listbox.Option
                                 key={option.id}
                                 className={({active, selected}) => `relative cursor-default select-none py-2 pl-10 pr-4 ${selected ? 'bg-gray-500' : ''} ${active ? 'bg-gray-300 text-black' : 'text-gray-700'}`}

@@ -120,19 +120,19 @@ export const Options = ({
 
                 <Reorder.Group axis="y" onReorder={setOptions} values={options}>
                     <div className="mt-4 flex flex-col gap-y-2">
-                        {options.map((option) => {
+                        {options.map((option, idx) => {
                             return (
-                                <Reorder.Item key={option.id} value={option}>
+                                <Reorder.Item key={option.id} value={option} dragListener={false}>
                                 <div
-                                    className={clsx("cursor-grab reorder-handle w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700 py-1.5 flex items-center justify-between px-2",
+                                    className={clsx("cursor-grab reorder-handle w-full bg-gray-700 rounded-md shadow-sm shadow-gray-700  flex items-center justify-between px-2",
                                         currentStep > 2 && "cursor-pointer",
-                                        currentStep > 2 && selectedOption?.id === option.id ? " border-2 bg-white text-gray-700 font-bold" : "")}
+                                        currentStep > 2 && selectedOption?.id === option.id ? " border-2 bg-white text-gray-700 font-bold py-2" : "py-1.5")}
                                     onClick={() => setSelectedOption(option)}>
                                     <span>{option.label}</span>
-                                    <div className={"flex justify-between"}>
-                                        <span> # {option.average}</span>
-                                        {currentStep === 2 &&
-                                            <button
+                                    <div className={"flex justify-between gap-2"}>
+
+                                        {currentStep === 2 ?
+                                            (<button
                                                 disabled={currentStep > 2}
                                                 onClick={() => {
                                                     setOptions((prev) => {
@@ -142,6 +142,12 @@ export const Options = ({
                                             >
                                             <CircleMinus className={clsx("stroke-red-500 w-7 h-7 fill-gray-700")}/>
                                         </button>
+                                            ) : (
+                                            <>
+                                               {idx === 0 && <span className={clsx("text-xs text-center py-1 px-1.5 rounded border border-white bg-green-500",  currentStep > 2 && selectedOption?.id === option.id ? "text-white bg-green-700" : "text-black bg-green-500")}>Best option</span>}
+                                                <span> #{option.average}</span>
+                                            </>
+                                            )
                                         }
 
                                     </div>
@@ -188,7 +194,7 @@ const ProsAndCons = ({
                          messageError
                      }: ProsAndConsProps) => {
     const [showSection, setShowSection] = useState(1);
-    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", value: 0});
+    const [currentReason, setCurrentReason] = useState<ReasonProps>({description: "", value: 1});
     const t = useTranslations("index")
 
 
@@ -204,7 +210,6 @@ const ProsAndCons = ({
         {id: 9, value: 9, label: t("stepThree.degrees.9")},
     ]
     const [selectedDegree, setSelectedDegree] = useState(degrees[0]);
-
 
     const handleChangeReasons = (e: ChangeEvent<HTMLInputElement>) => {
         const {value, name} = e.target
@@ -223,23 +228,25 @@ const ProsAndCons = ({
 
     };
     const addReason = (type: "pros" | "cons", optionId?: number) => {
+        console.log(currentReason.value === 0);
         const copyArrOptions = [...options]
         const newOptions = copyArrOptions.map((option) => {
             if (option.id === optionId) {
-                if (option[type].length < 2) {
+                if (option[type].length < 10) {
                     if (Object.values(currentReason).every((value) => value !== "")) {
                         option[type].push(currentReason)
-                        setCurrentReason({description: "", value: 0})
                         handleAverage(option)
                         return option
                     } else {
                         showMessageError("empty", type);
-                        setCurrentReason({description: "", value: 0})
                     }
+
                 } else {
                     showMessageError("limit", type)
                 }
             }
+            setCurrentReason({description: "", value: 1})
+            setSelectedDegree(degrees[0])
             return option;
         });
 
@@ -247,7 +254,7 @@ const ProsAndCons = ({
     };
 
     const deleteReason = (index: number, type: "pros" | "cons") => {
-        setOptions( (prevOptions: any) => {
+        setOptions((prevOptions: any) => {
             const newOptions = [...prevOptions];
             const copyOption = selectedOption;
             if (copyOption) {
@@ -312,9 +319,10 @@ const ProsAndCons = ({
                 </button>
             </div>
 
+
             <div className="mt-2">
                 {showSection === 1 && (
-                    <div className={"flex flex-col gap-3"}>
+                    <div className={"mx-auto"}>
                         <div className={"flex flex-row gap-3"}>
                             <div className={clsx("w-4/6 border-b-2 border-white mb-1",
                                 messageError.group === "pros" ? "border-b-red-500" : "")}>
@@ -347,8 +355,11 @@ const ProsAndCons = ({
                                 message={messageError.type === "empty" ? t("errorMessageEmptyReasons") : t("errorMessageLimitPros")}
                                 variant="alert"/>
                         )}
+                        <Message
+                            message={t("stepThree.messagePros")}
+                            variant="primary"/>
                         <div
-                            className={"w-full flex flex-col justify-around gap-2"}>
+                            className={"w-full flex flex-col justify-around gap-2 mt-4"}>
                             {selectedOption?.pros.map((pro, i) => {
                                 return (
                                     <div
@@ -376,7 +387,7 @@ const ProsAndCons = ({
 
                 )}
                 {showSection === 2 && (
-                    <div className={"flex flex-col gap-3"}>
+                    <div className={"mx-auto"}>
                         <div className={"flex flex-row gap-3"}>
                             <div className={clsx("w-4/6 border-b-2 mb-1",
                                 messageError.group === "cons" ? "border-b-red-500" : "border-white")}>
@@ -408,8 +419,11 @@ const ProsAndCons = ({
                                 message={messageError.type === "empty" ? t("errorMessageEmptyReasons") : t("errorMessageLimitCons")}
                                 variant="alert"/>
                         )}
+                        <Message
+                            message={t("stepThree.messageCons")}
+                            variant="primary"/>
                         <div
-                            className={"w-full flex flex-col justify-around gap-2"}>
+                            className={"w-full flex flex-col justify-around gap-2 mt-4"}>
                             {selectedOption?.cons.map((cons, i) => {
                                 return (
                                     <div
