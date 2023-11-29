@@ -8,11 +8,13 @@
     "stepTwo": {
       "question": "¿Qué opciones tienes?",
       "placeholder": "Por ejemplo... Honda Civic",
-      "message": "Si tienes entre dos o tres opciones, pulsa la flecha para ir al siguiente paso.'"
+      "message": "Si tienes entre dos o tres opciones, pulsa la flecha para ir al siguiente paso."
     },
     "stepThree": {
       "placeholderPros": "Por ejemplo... Es económico",
       "placeholderCons": "Por ejemplo... Es caro",
+      "messagePros": "Puedes añadir un máximo de 10 pros",
+      "messageCons": "Puedes añadir un máximo de 10 cons",
       "degrees": {
         "1": "Insignificante",
         "2":"Relevante",

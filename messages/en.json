@@ -13,6 +13,8 @@
     "stepThree": {
       "placeholderPros": "For example... It's economical",
       "placeholderCons": "For example... It's expensive",
+      "messagePros": "You can add a maximum of 10 pros",
+      "messageCons": "You can add a maximum of 10 cons",
       "degrees": {
         "1": "Insignificant",
         "2":"Relevant",
