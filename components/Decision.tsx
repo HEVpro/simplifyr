@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import {useState} from "react";
 import {Message} from "@/components/Message";
-import {errorMessageGroup, errorMessageType, MessageError} from "@/app/[locale]/page";
+import {errorMessageGroup, errorMessageType, MessageError} from "@/types/messageError";
 import {useTranslations} from "next-intl";
 
 
