@@ -228,7 +228,6 @@ const ProsAndCons = ({
 
     };
     const addReason = (type: "pros" | "cons", optionId?: number) => {
-        console.log(currentReason.value === 0);
         const copyArrOptions = [...options]
         const newOptions = copyArrOptions.map((option) => {
             if (option.id === optionId) {
